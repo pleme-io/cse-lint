@@ -16,11 +16,13 @@
 mod check;
 mod fix;
 mod model;
+mod render;
 mod report;
+mod scaffold;
 mod source;
 
 use anyhow::Result;
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
@@ -43,6 +45,16 @@ struct Cli {
     command: Command,
 }
 
+#[derive(Copy, Clone, ValueEnum)]
+enum RenderFormat {
+    /// Markdown table for embedding in docs / CLAUDE.md.
+    Markdown,
+    /// JSON pretty-printed (pipe through `jq`).
+    Json,
+    /// Graphviz DOT graph (render with `dot -Tpng`).
+    Dot,
+}
+
 #[derive(Subcommand)]
 enum Command {
     /// Audit repos under a workspace root.
@@ -62,6 +74,37 @@ enum Command {
         /// Exit non-zero if any violations are found.
         #[arg(long)]
         strict: bool,
+    },
+
+    /// Render the typed ecosystem manifest as a queryable artifact.
+    Render {
+        /// Workspace root.
+        #[arg(default_value = "~/code/github/pleme-io")]
+        root: String,
+
+        /// Output format.
+        #[arg(value_enum)]
+        format: RenderFormat,
+    },
+
+    /// Scaffold baseline CLAUDE.md (with CSE pointer pre-wired) for
+    /// repos that lack one. Defaults to dry-run.
+    Scaffold {
+        /// Workspace root.
+        #[arg(default_value = "~/code/github/pleme-io")]
+        root: String,
+
+        /// Optional repo filter — comma-separated names.
+        #[arg(long)]
+        only: Option<String>,
+
+        /// Actually create files. Without this, prints planned scaffolds.
+        #[arg(long)]
+        apply: bool,
+
+        /// Auto-commit each scaffolded repo (requires --apply).
+        #[arg(long)]
+        commit: bool,
     },
 
     /// Auto-remediate violations. Defaults to dry-run.
@@ -166,6 +209,77 @@ fn main() -> Result<()> {
             let total_violations: usize = report.violations_by_kind.values().sum();
             if strict && total_violations > 0 {
                 std::process::exit(1);
+            }
+            Ok(())
+        }
+        Command::Render { root, format } => {
+            let root = expand_tilde(&root);
+            let manifest_path = root.join("nix/lib/ecosystem.nix");
+            let manifest = render::load_manifest(&manifest_path)?;
+            let out = match format {
+                RenderFormat::Markdown => render::render_markdown_table(&manifest),
+                RenderFormat::Json => render::render_json(&manifest)?,
+                RenderFormat::Dot => render::render_dot(&manifest),
+            };
+            print!("{}", out);
+            Ok(())
+        }
+        Command::Scaffold { root, only, apply, commit } => {
+            let root = expand_tilde(&root);
+            let only_list: Vec<String> = only
+                .map(|s| s.split(',').map(|p| p.trim().to_string()).collect())
+                .unwrap_or_default();
+            let source = FilesystemSource::new(root.clone()).with_only(only_list);
+            let repos = source.repos()?;
+
+            let plans: Vec<scaffold::ScaffoldPlan> = repos
+                .iter()
+                .filter_map(|r| scaffold::plan_scaffold(r))
+                .collect();
+
+            println!(
+                "cse-lint scaffold — planned {} CLAUDE.md file(s).",
+                plans.len()
+            );
+            if !apply {
+                println!("(dry-run; pass --apply to create files)\n");
+            } else {
+                println!("(--apply set; creating files)\n");
+            }
+
+            let mut applied: usize = 0;
+            for plan in &plans {
+                println!("  ▸ {} ← scaffold {} bytes", plan.repo_name, plan.content.len());
+                if apply {
+                    match scaffold::apply_scaffold(plan) {
+                        Ok(()) => {
+                            applied += 1;
+                            if commit {
+                                let _ = std::process::Command::new("git")
+                                    .current_dir(&root.join(&plan.repo_name))
+                                    .args(&["add", "CLAUDE.md"])
+                                    .status();
+                                let _ = std::process::Command::new("git")
+                                    .current_dir(&root.join(&plan.repo_name))
+                                    .args(&[
+                                        "-c", "commit.gpgsign=false",
+                                        "commit", "-m",
+                                        "CLAUDE.md: cse-lint scaffolded baseline with CSE pointer",
+                                    ])
+                                    .status();
+                            }
+                        }
+                        Err(e) => eprintln!("    error: {}", e),
+                    }
+                }
+            }
+
+            if apply {
+                println!(
+                    "\nScaffolded {} file(s){}.",
+                    applied,
+                    if commit { ", each committed" } else { "; commit manually after review" },
+                );
             }
             Ok(())
         }

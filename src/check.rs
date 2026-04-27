@@ -118,7 +118,7 @@ pub struct ManifestMembershipChecker {
     pub loaded: std::sync::OnceLock<ManifestSnapshot>,
 }
 
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ManifestSnapshot {
     /// app-name → resolved-app shape (we only keep what we audit).
     #[serde(default)]
@@ -128,12 +128,18 @@ pub struct ManifestSnapshot {
     pub classes: std::collections::HashMap<String, ResolvedClass>,
 }
 
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ResolvedApp {
     pub class: Option<String>,
+    #[serde(default)]
+    pub namespace: Option<String>,
+    #[serde(default, rename = "optionName")]
+    pub option_name: Option<String>,
+    #[serde(default)]
+    pub platforms: Vec<String>,
 }
 
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ResolvedClass {
     #[serde(default)]
     pub profiles: Vec<String>,
