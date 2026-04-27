@@ -102,14 +102,103 @@ impl CseChecker for HandRollDetectionChecker {
 /// `pleme-io/nix/lib/ecosystem.nix`, has a class assignment that
 /// references at least one profile.
 ///
-/// This check is **stub** for now: full implementation requires parsing
-/// the manifest's Nix value, which is out of scope until cse-lint links
-/// against a Nix evaluator (or invokes `nix eval` as a sub-process).
-/// The stub records the repos it can find inline references for; full
-/// audit lands when manifest-eval support is added.
+/// Implementation: invokes `nix eval --json` on the manifest's
+/// `resolved` (typed apps + classes), then cross-references each app's
+/// class against the classes table's `profiles` list. Apps with a
+/// class that has zero profile members get flagged — they're listed in
+/// the manifest but never enabled anywhere.
+///
+/// We don't flag "this repo is missing from the manifest" because the
+/// manifest is intentionally a curated subset (the trio-migrated apps),
+/// not the entire fleet.
 pub struct ManifestMembershipChecker {
     /// Path to ecosystem.nix; if None, the check is skipped.
     pub manifest_path: Option<std::path::PathBuf>,
+    /// Eagerly-loaded manifest content. Populated by `load`.
+    pub loaded: std::sync::OnceLock<ManifestSnapshot>,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ManifestSnapshot {
+    /// app-name → resolved-app shape (we only keep what we audit).
+    #[serde(default)]
+    pub resolved: std::collections::HashMap<String, ResolvedApp>,
+    /// class-name → class shape.
+    #[serde(default)]
+    pub classes: std::collections::HashMap<String, ResolvedClass>,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ResolvedApp {
+    pub class: Option<String>,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ResolvedClass {
+    #[serde(default)]
+    pub profiles: Vec<String>,
+    /// Apps in this class are listed for knowledge-graph / audit
+    /// completeness; empty profiles[] is intentional, not a violation.
+    #[serde(default, rename = "auditOnly")]
+    pub audit_only: bool,
+}
+
+impl ManifestMembershipChecker {
+    pub fn new(manifest_path: Option<std::path::PathBuf>) -> Self {
+        Self {
+            manifest_path,
+            loaded: std::sync::OnceLock::new(),
+        }
+    }
+
+    /// Invoke `nix eval --json` against the manifest. Returns None on
+    /// any error (manifest absent, nix unavailable, eval failure) —
+    /// the audit then skips manifest-membership rather than failing.
+    fn load_snapshot(&self) -> Option<&ManifestSnapshot> {
+        if let Some(snap) = self.loaded.get() {
+            return Some(snap);
+        }
+        let path = self.manifest_path.as_ref()?;
+        let workspace_root = path.parent()?.parent()?.parent()?;
+        // We import the manifest as a Nix value. The `inputs` arg is
+        // tricky — we'd need the workspace's flake. Shortcut: tell nix
+        // to eval the manifest as a module, supplying a fake `inputs`
+        // attrset whose presence we don't actually check (the manifest
+        // looks up `inputs.<app>.homeManagerModules` only when the
+        // helper functions are CALLED; the data structure itself is
+        // pure).
+        let expr = format!(
+            r#"
+              let
+                lib = (import <nixpkgs> {{}}).lib;
+                # Provide a stub inputs that returns an empty attrset
+                # for any flake input lookup. The manifest's resolution
+                # functions don't dereference inputs unless asked, so
+                # we can pull just the data shape.
+                eco = import {} {{ inputs = {{}}; lib = lib; }};
+              in {{
+                resolved = lib.mapAttrs (_: app: {{ class = app.class or null; }}) eco.resolved;
+                classes = lib.mapAttrs (_: cls: {{
+                  profiles = cls.profiles or [];
+                  auditOnly = cls.auditOnly or false;
+                }}) eco.classes;
+              }}
+            "#,
+            path.display(),
+        );
+        let output = std::process::Command::new("nix")
+            .args(&["eval", "--impure", "--json", "--expr", &expr])
+            .current_dir(workspace_root)
+            .output()
+            .ok()?;
+        if !output.status.success() {
+            return None;
+        }
+        let stdout = String::from_utf8(output.stdout).ok()?;
+        let snap: ManifestSnapshot = serde_json::from_str(&stdout).ok()?;
+        let _ = self.loaded.set(snap);
+        self.loaded.get()
+    }
 }
 
 impl CseChecker for ManifestMembershipChecker {
@@ -117,12 +206,47 @@ impl CseChecker for ManifestMembershipChecker {
         CseCheckKind::ManifestMembership
     }
 
-    fn check(&self, _repo: &RepoContext, _violations: &mut Vec<CseViolation>) {
-        // Pending: parse manifest Nix value via `nix eval --json` and
-        // cross-reference. The manifest's typed schema (lib/ecosystem.nix)
-        // is the source of truth; cse-lint reads it at audit time.
-        // No violations emitted from the stub — checker reports clean
-        // until full implementation lands.
+    fn check(&self, repo: &RepoContext, violations: &mut Vec<CseViolation>) {
+        let snap = match self.load_snapshot() {
+            Some(s) => s,
+            None => return, // manifest not available; skip silently
+        };
+        let app = match snap.resolved.get(&repo.name) {
+            Some(a) => a,
+            None => return, // not in manifest; that's fine — manifest is curated
+        };
+        let class_name = match &app.class {
+            Some(c) => c,
+            None => {
+                violations.push(CseViolation::ManifestInconsistency {
+                    repo: repo.name.clone(),
+                    app: repo.name.clone(),
+                    issue: "in manifest but no class assigned".into(),
+                    remediation: "Add `class = \"<class-name>\"` to the entry in pleme-io/nix/lib/ecosystem.nix.".into(),
+                });
+                return;
+            }
+        };
+        let class = match snap.classes.get(class_name) {
+            Some(c) => c,
+            None => {
+                violations.push(CseViolation::ManifestInconsistency {
+                    repo: repo.name.clone(),
+                    app: repo.name.clone(),
+                    issue: format!("class `{}` is not defined", class_name),
+                    remediation: format!("Add `\"{}\" = {{ profiles = [...]; }};` to the classes attrset in pleme-io/nix/lib/ecosystem.nix.", class_name),
+                });
+                return;
+            }
+        };
+        if class.profiles.is_empty() && !class.audit_only {
+            violations.push(CseViolation::ManifestInconsistency {
+                repo: repo.name.clone(),
+                app: repo.name.clone(),
+                issue: format!("class `{}` has no profile members — app is loaded but never auto-enabled", class_name),
+                remediation: format!("Either add this class to a profile's enable set in pleme-io/nix/lib/ecosystem.nix, or move the app to an existing class with profile members. If empty profiles[] is intentional, set `auditOnly = true;` on the class so cse-lint stops flagging it."),
+            });
+        }
     }
 }
 

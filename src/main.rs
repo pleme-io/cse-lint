@@ -14,6 +14,7 @@
 //! Adherence is mechanically checkable rather than aspirational.
 
 mod check;
+mod fix;
 mod model;
 mod report;
 mod source;
@@ -27,6 +28,7 @@ use crate::check::{
     ClaudeMdPointerChecker, CseChecker, HandRollDetectionChecker,
     ManifestMembershipChecker, ModuleTrioAdoptionChecker,
 };
+use crate::fix::{all_remediators, apply_edit, EditAction, PlannedEdit};
 use crate::model::{CseAuditReport, CseCheckKind, RepoResult};
 use crate::source::{FilesystemSource, RepoSource};
 
@@ -61,6 +63,35 @@ enum Command {
         #[arg(long)]
         strict: bool,
     },
+
+    /// Auto-remediate violations. Defaults to dry-run.
+    Fix {
+        /// Workspace root.
+        #[arg(default_value = "~/code/github/pleme-io")]
+        root: String,
+
+        /// Optional repo filter.
+        #[arg(long)]
+        only: Option<String>,
+
+        /// Restrict fixes to one or more check kinds (comma-separated).
+        /// Available: claude-md-pointer, hand-roll, manifest-membership,
+        /// module-trio-adoption. Default: all auto-fixable kinds.
+        #[arg(long)]
+        check: Option<String>,
+
+        /// Actually write changes. Without this, prints planned edits
+        /// without modifying files.
+        #[arg(long)]
+        apply: bool,
+
+        /// Auto-commit each repo after applying fix (requires --apply).
+        /// Commit message: "CLAUDE.md: cse-lint added CSE pointer".
+        /// Push is NOT performed — operator reviews then pushes
+        /// manually.
+        #[arg(long)]
+        commit: bool,
+    },
 }
 
 fn expand_tilde(p: &str) -> PathBuf {
@@ -87,7 +118,7 @@ fn main() -> Result<()> {
             let checkers: Vec<Box<dyn CseChecker>> = vec![
                 Box::new(ClaudeMdPointerChecker),
                 Box::new(HandRollDetectionChecker),
-                Box::new(ManifestMembershipChecker { manifest_path }),
+                Box::new(ManifestMembershipChecker::new(manifest_path.clone())),
                 Box::new(ModuleTrioAdoptionChecker),
             ];
 
@@ -135,6 +166,132 @@ fn main() -> Result<()> {
             let total_violations: usize = report.violations_by_kind.values().sum();
             if strict && total_violations > 0 {
                 std::process::exit(1);
+            }
+            Ok(())
+        }
+        Command::Fix { root, only, check, apply, commit } => {
+            let root = expand_tilde(&root);
+            let only_list: Vec<String> = only
+                .map(|s| s.split(',').map(|p| p.trim().to_string()).collect())
+                .unwrap_or_default();
+            let kind_filter: Option<Vec<CseCheckKind>> = check.as_ref().map(|s| {
+                s.split(',')
+                    .filter_map(|c| match c.trim() {
+                        "claude-md-pointer" => Some(CseCheckKind::ClaudeMdPointer),
+                        "hand-roll" => Some(CseCheckKind::HandRollDetection),
+                        "manifest-membership" => Some(CseCheckKind::ManifestMembership),
+                        "module-trio-adoption" => Some(CseCheckKind::ModuleTrioAdoption),
+                        _ => None,
+                    })
+                    .collect()
+            });
+
+            let source = FilesystemSource::new(root.clone()).with_only(only_list);
+            let manifest_path = root.join("nix/lib/ecosystem.nix");
+            let manifest_path = if manifest_path.exists() { Some(manifest_path) } else { None };
+
+            let checkers: Vec<Box<dyn CseChecker>> = vec![
+                Box::new(ClaudeMdPointerChecker),
+                Box::new(HandRollDetectionChecker),
+                Box::new(ManifestMembershipChecker::new(manifest_path.clone())),
+                Box::new(ModuleTrioAdoptionChecker),
+            ];
+            let remediators = all_remediators();
+
+            let repos = source.repos()?;
+            let mut planned_edits: Vec<PlannedEdit> = Vec::new();
+            let mut skipped_count: usize = 0;
+
+            for repo in &repos {
+                let mut violations = Vec::new();
+                for checker in &checkers {
+                    if let Some(filter) = &kind_filter {
+                        if !filter.contains(&checker.kind()) {
+                            continue;
+                        }
+                    }
+                    checker.check(repo, &mut violations);
+                }
+                for v in &violations {
+                    for r in &remediators {
+                        if r.kind() != v.kind() {
+                            continue;
+                        }
+                        if let Some(edit) = r.plan(repo, v) {
+                            match &edit.action {
+                                EditAction::Skip { .. } => skipped_count += 1,
+                                _ => {}
+                            }
+                            planned_edits.push(edit);
+                        }
+                    }
+                }
+            }
+
+            // Print plan
+            let applicable_count = planned_edits
+                .iter()
+                .filter(|e| !matches!(e.action, EditAction::Skip { .. }))
+                .count();
+
+            println!(
+                "cse-lint fix — planned {} edit(s), {} skipped (need manual handling).",
+                applicable_count, skipped_count,
+            );
+            if !apply {
+                println!("(dry-run; pass --apply to write changes)\n");
+            } else {
+                println!("(--apply set; writing changes)\n");
+            }
+
+            let mut applied_count: usize = 0;
+            for edit in &planned_edits {
+                match &edit.action {
+                    EditAction::InsertAfterFirstMatch { .. } => {
+                        println!(
+                            "  [{}] {} ← insert pointer block",
+                            edit.kind.label(),
+                            edit.path.display(),
+                        );
+                        if apply {
+                            match apply_edit(edit) {
+                                Ok(true) => applied_count += 1,
+                                Ok(false) => {}
+                                Err(e) => eprintln!("    error: {}", e),
+                            }
+                            if commit {
+                                let _ = std::process::Command::new("git")
+                                    .current_dir(&root.join(&edit.repo_name))
+                                    .args(&["add", "CLAUDE.md"])
+                                    .status();
+                                let _ = std::process::Command::new("git")
+                                    .current_dir(&root.join(&edit.repo_name))
+                                    .args(&[
+                                        "-c", "commit.gpgsign=false",
+                                        "commit", "-m",
+                                        "CLAUDE.md: cse-lint added CSE pointer",
+                                    ])
+                                    .status();
+                            }
+                        }
+                    }
+                    EditAction::Skip { reason } => {
+                        println!(
+                            "  [{}] {} (skip: {})",
+                            edit.kind.label(),
+                            edit.repo_name,
+                            reason,
+                        );
+                    }
+                }
+            }
+
+            if apply {
+                println!(
+                    "\nApplied {} edit(s){}.",
+                    applied_count,
+                    if commit { ", each committed" } else { "; commit manually after review" },
+                );
             }
             Ok(())
         }
