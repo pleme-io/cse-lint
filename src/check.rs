@@ -256,6 +256,86 @@ impl CseChecker for ManifestMembershipChecker {
     }
 }
 
+// ─── 5. DeploymentCoverage ────────────────────────────────────────────
+/// Asserts that any flake.nix declaring `deploy = { cluster = "..."; }`
+/// (i.e. consuming `wasi-service-flux-flake.nix`) has a corresponding
+/// FluxCD bundle directory in `pleme-io/k8s/clusters/<cluster>/services/<name>/`.
+///
+/// The audit walks the repo's flake.nix, extracts the `deploy.cluster`
+/// value via regex, then verifies the expected on-disk path exists in
+/// the workspace's `k8s/clusters/<cluster>/services/<repo-name>/`
+/// directory and contains at least one YAML file.
+pub struct DeploymentCoverageChecker {
+    /// Path to the workspace root containing both repos and the k8s
+    /// directory. If None, the check is skipped silently.
+    pub workspace_root: Option<std::path::PathBuf>,
+}
+
+fn deploy_cluster_re() -> &'static Regex {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| {
+        Regex::new(r#"deploy\s*=\s*\{[^}]*?cluster\s*=\s*"([^"]+)""#)
+            .expect("deploy.cluster regex must compile")
+    })
+}
+
+impl CseChecker for DeploymentCoverageChecker {
+    fn kind(&self) -> CseCheckKind {
+        CseCheckKind::DeploymentCoverage
+    }
+
+    fn check(&self, repo: &RepoContext, violations: &mut Vec<CseViolation>) {
+        let root = match &self.workspace_root {
+            Some(r) => r,
+            None => return,
+        };
+        let flake = match &repo.flake_nix {
+            Some(f) => f,
+            None => return,
+        };
+        // Find the first deploy.cluster ref. If none, the repo doesn't
+        // declare a deploy block — out of scope for this check.
+        let caps = match deploy_cluster_re().captures(flake) {
+            Some(c) => c,
+            None => return,
+        };
+        let cluster = caps.get(1).map(|m| m.as_str()).unwrap_or("");
+        if cluster.is_empty() {
+            return;
+        }
+        let expected = root
+            .join("k8s")
+            .join("clusters")
+            .join(cluster)
+            .join("services")
+            .join(&repo.name);
+        let bundle_present = expected.is_dir()
+            && std::fs::read_dir(&expected)
+                .map(|d| d.flatten().any(|e| {
+                    e.path()
+                        .extension()
+                        .and_then(|s| s.to_str())
+                        .map(|s| s == "yaml" || s == "yml")
+                        .unwrap_or(false)
+                }))
+                .unwrap_or(false);
+        if !bundle_present {
+            violations.push(CseViolation::MissingDeployBundle {
+                repo: repo.name.clone(),
+                cluster: cluster.to_string(),
+                expected_path: expected.display().to_string(),
+                remediation: format!(
+                    "Run `cd ~/code/github/pleme-io/{} && nix run .#render-deploy` \
+                     to materialize the bundle, then commit the resulting \
+                     directory to the k8s repo. (Substrate primitive: \
+                     wasi-service-flux-flake.nix.)",
+                    repo.name,
+                ),
+            });
+        }
+    }
+}
+
 // ─── 4. ModuleTrioAdoption ────────────────────────────────────────────
 /// Asserts that `flake.nix` doesn't carry the legacy
 /// `// { homeManagerModules.default = import ./module ... }` suffix.

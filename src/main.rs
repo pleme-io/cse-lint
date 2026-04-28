@@ -27,8 +27,9 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 use crate::check::{
-    ClaudeMdPointerChecker, CseChecker, HandRollDetectionChecker,
-    ManifestMembershipChecker, ModuleTrioAdoptionChecker,
+    ClaudeMdPointerChecker, CseChecker, DeploymentCoverageChecker,
+    HandRollDetectionChecker, ManifestMembershipChecker,
+    ModuleTrioAdoptionChecker,
 };
 use crate::fix::{all_remediators, apply_edit, EditAction, PlannedEdit};
 use crate::model::{CseAuditReport, CseCheckKind, RepoResult};
@@ -163,6 +164,9 @@ fn main() -> Result<()> {
                 Box::new(HandRollDetectionChecker),
                 Box::new(ManifestMembershipChecker::new(manifest_path.clone())),
                 Box::new(ModuleTrioAdoptionChecker),
+                Box::new(DeploymentCoverageChecker {
+                    workspace_root: Some(root.clone()),
+                }),
             ];
 
             let repos = source.repos()?;
@@ -295,6 +299,7 @@ fn main() -> Result<()> {
                         "hand-roll" => Some(CseCheckKind::HandRollDetection),
                         "manifest-membership" => Some(CseCheckKind::ManifestMembership),
                         "module-trio-adoption" => Some(CseCheckKind::ModuleTrioAdoption),
+                        "deployment-coverage" => Some(CseCheckKind::DeploymentCoverage),
                         _ => None,
                     })
                     .collect()
@@ -309,6 +314,9 @@ fn main() -> Result<()> {
                 Box::new(HandRollDetectionChecker),
                 Box::new(ManifestMembershipChecker::new(manifest_path.clone())),
                 Box::new(ModuleTrioAdoptionChecker),
+                Box::new(DeploymentCoverageChecker {
+                    workspace_root: Some(root.clone()),
+                }),
             ];
             let remediators = all_remediators();
 

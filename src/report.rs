@@ -67,5 +67,11 @@ fn violation_message(v: &crate::model::CseViolation) -> (String, String) {
         LegacyModulePattern { location, remediation, .. } => {
             (location.clone(), remediation.clone())
         }
+        MissingDeployBundle { cluster, expected_path, remediation, .. } => {
+            (
+                format!("deploy.cluster=\"{}\" but no bundle at {}", cluster, expected_path),
+                remediation.clone(),
+            )
+        }
     }
 }

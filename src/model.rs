@@ -44,6 +44,11 @@ pub enum CseCheckKind {
     /// (new pattern) instead of hand-rolling
     /// `// { homeManagerModules.default = import ./module ... }`.
     ModuleTrioAdoption,
+    /// A repo whose flake.nix declares `deploy = { cluster = "...";`
+    /// (i.e. uses substrate's wasi-service-flux-flake.nix) has a
+    /// matching FluxCD bundle directory at
+    /// `pleme-io/k8s/clusters/<cluster>/services/<name>/`.
+    DeploymentCoverage,
 }
 
 impl CseCheckKind {
@@ -53,6 +58,7 @@ impl CseCheckKind {
             CseCheckKind::HandRollDetection => "hand-roll",
             CseCheckKind::ManifestMembership => "manifest-membership",
             CseCheckKind::ModuleTrioAdoption => "module-trio-adoption",
+            CseCheckKind::DeploymentCoverage => "deployment-coverage",
         }
     }
 
@@ -62,15 +68,17 @@ impl CseCheckKind {
             CseCheckKind::HandRollDetection => "solve problems once",
             CseCheckKind::ManifestMembership => "acquire and contextualize",
             CseCheckKind::ModuleTrioAdoption => "idiom-first",
+            CseCheckKind::DeploymentCoverage => "promises hold mechanically",
         }
     }
 
-    pub fn all() -> [CseCheckKind; 4] {
+    pub fn all() -> [CseCheckKind; 5] {
         [
             CseCheckKind::ClaudeMdPointer,
             CseCheckKind::HandRollDetection,
             CseCheckKind::ManifestMembership,
             CseCheckKind::ModuleTrioAdoption,
+            CseCheckKind::DeploymentCoverage,
         ]
     }
 }
@@ -103,6 +111,15 @@ pub enum CseViolation {
         location: String,
         remediation: String,
     },
+    /// flake.nix declares `deploy = { cluster = "..." }` but the
+    /// expected FluxCD bundle directory at
+    /// `k8s/clusters/<cluster>/services/<name>/` is absent or empty.
+    MissingDeployBundle {
+        repo: String,
+        cluster: String,
+        expected_path: String,
+        remediation: String,
+    },
 }
 
 impl CseViolation {
@@ -112,6 +129,7 @@ impl CseViolation {
             CseViolation::HandRoll { .. } => CseCheckKind::HandRollDetection,
             CseViolation::ManifestInconsistency { .. } => CseCheckKind::ManifestMembership,
             CseViolation::LegacyModulePattern { .. } => CseCheckKind::ModuleTrioAdoption,
+            CseViolation::MissingDeployBundle { .. } => CseCheckKind::DeploymentCoverage,
         }
     }
 
@@ -121,6 +139,7 @@ impl CseViolation {
             CseViolation::HandRoll { repo, .. } => repo,
             CseViolation::ManifestInconsistency { repo, .. } => repo,
             CseViolation::LegacyModulePattern { repo, .. } => repo,
+            CseViolation::MissingDeployBundle { repo, .. } => repo,
         }
     }
 }
