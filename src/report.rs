@@ -73,5 +73,8 @@ fn violation_message(v: &crate::model::CseViolation) -> (String, String) {
                 remediation.clone(),
             )
         }
+        MissingCaixaManifest { remediation, .. } => {
+            ("repo lacks a caixa.lisp at the root".into(), remediation.clone())
+        }
     }
 }

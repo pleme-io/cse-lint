@@ -27,7 +27,7 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 use crate::check::{
-    ClaudeMdPointerChecker, CseChecker, DeploymentCoverageChecker,
+    CaixaNaiveteChecker, ClaudeMdPointerChecker, CseChecker, DeploymentCoverageChecker,
     HandRollDetectionChecker, ManifestMembershipChecker,
     ModuleTrioAdoptionChecker,
 };
@@ -167,6 +167,7 @@ fn main() -> Result<()> {
                 Box::new(DeploymentCoverageChecker {
                     workspace_root: Some(root.clone()),
                 }),
+                Box::new(CaixaNaiveteChecker),
             ];
 
             let repos = source.repos()?;
@@ -317,6 +318,7 @@ fn main() -> Result<()> {
                 Box::new(DeploymentCoverageChecker {
                     workspace_root: Some(root.clone()),
                 }),
+                Box::new(CaixaNaiveteChecker),
             ];
             let remediators = all_remediators();
 

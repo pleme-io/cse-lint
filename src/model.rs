@@ -20,15 +20,19 @@ pub struct RepoContext {
     pub flake_nix: Option<String>,
     /// module/default.nix content (None for repos without a module dir).
     pub module_nix: Option<String>,
+    /// Top-level caixa.lisp content (None if the repo isn't caixa-native).
+    pub caixa_lisp: Option<String>,
 }
 
 /// Tag identifying which CSE invariant a check verifies.
 ///
-/// The four invariants come directly from the Compounding Directive:
+/// The invariants come directly from the Compounding Directive:
 ///   1. Models stay current (CLAUDE.md ↔ theory)
 ///   2. Solve problems once (substrate helper consumption)
 ///   3. Acquire and contextualize (manifest membership)
 ///   4. Idiom-first (module trio adoption over hand-rolled HM modules)
+///   5. Promises hold mechanically (deployment coverage)
+///   6. Generation over composition (caixa-native authoring)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub enum CseCheckKind {
     /// CLAUDE.md links to CONSTRUCTIVE-SUBSTRATE-ENGINEERING.md
@@ -49,6 +53,11 @@ pub enum CseCheckKind {
     /// matching FluxCD bundle directory at
     /// `pleme-io/k8s/clusters/<cluster>/services/<name>/`.
     DeploymentCoverage,
+    /// The repo declares itself as a caixa via a `caixa.lisp` at the root.
+    /// V0 is informational (severity = warn) — flips to `--strict` once
+    /// the migration window completes. Drives fleet adoption of caixa as
+    /// the primitive (per theory/META-FRAMEWORK.md §I).
+    CaixaNaivete,
 }
 
 impl CseCheckKind {
@@ -59,6 +68,7 @@ impl CseCheckKind {
             CseCheckKind::ManifestMembership => "manifest-membership",
             CseCheckKind::ModuleTrioAdoption => "module-trio-adoption",
             CseCheckKind::DeploymentCoverage => "deployment-coverage",
+            CseCheckKind::CaixaNaivete => "caixa-naivete",
         }
     }
 
@@ -69,16 +79,18 @@ impl CseCheckKind {
             CseCheckKind::ManifestMembership => "acquire and contextualize",
             CseCheckKind::ModuleTrioAdoption => "idiom-first",
             CseCheckKind::DeploymentCoverage => "promises hold mechanically",
+            CseCheckKind::CaixaNaivete => "generation over composition",
         }
     }
 
-    pub fn all() -> [CseCheckKind; 5] {
+    pub fn all() -> [CseCheckKind; 6] {
         [
             CseCheckKind::ClaudeMdPointer,
             CseCheckKind::HandRollDetection,
             CseCheckKind::ManifestMembership,
             CseCheckKind::ModuleTrioAdoption,
             CseCheckKind::DeploymentCoverage,
+            CseCheckKind::CaixaNaivete,
         ]
     }
 }
@@ -120,6 +132,13 @@ pub enum CseViolation {
         expected_path: String,
         remediation: String,
     },
+    /// The repo lacks a `caixa.lisp` at its root. V0 is informational —
+    /// flips to a hard failure under `--strict` once the migration window
+    /// closes.
+    MissingCaixaManifest {
+        repo: String,
+        remediation: String,
+    },
 }
 
 impl CseViolation {
@@ -130,6 +149,7 @@ impl CseViolation {
             CseViolation::ManifestInconsistency { .. } => CseCheckKind::ManifestMembership,
             CseViolation::LegacyModulePattern { .. } => CseCheckKind::ModuleTrioAdoption,
             CseViolation::MissingDeployBundle { .. } => CseCheckKind::DeploymentCoverage,
+            CseViolation::MissingCaixaManifest { .. } => CseCheckKind::CaixaNaivete,
         }
     }
 
@@ -140,6 +160,7 @@ impl CseViolation {
             CseViolation::ManifestInconsistency { repo, .. } => repo,
             CseViolation::LegacyModulePattern { repo, .. } => repo,
             CseViolation::MissingDeployBundle { repo, .. } => repo,
+            CseViolation::MissingCaixaManifest { repo, .. } => repo,
         }
     }
 }

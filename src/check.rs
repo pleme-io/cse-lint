@@ -1,4 +1,4 @@
-//! The four CSE checkers + a composable trait that wires them together.
+//! The CSE checkers + a composable trait that wires them together.
 //!
 //! Each checker is small, single-purpose, and produces zero or more
 //! [`CseViolation`]s. The orchestrator (in `main.rs`) walks all repos
@@ -370,5 +370,82 @@ impl CseChecker for ModuleTrioAdoptionChecker {
                 remediation: "Migrate to `module = { description = ...; ... }` in the substrate helper call. See substrate/lib/module-trio.nix spec, or commit nami@a2a2a72 for a canonical example.".into(),
             });
         }
+    }
+}
+
+
+// ─── 6. CaixaNaivete ──────────────────────────────────────────────────
+/// Asserts that the repo declares itself as a caixa via a top-level
+/// `caixa.lisp` (per `theory/META-FRAMEWORK.md` §I — caixa is the
+/// canonical Layer-0 source primitive).
+///
+/// V0 flags every repo without `caixa.lisp` as informational. Eventually
+/// `--strict` makes it a hard failure for repos that should be caixa-native
+/// (Servico/Biblioteca/Binario shapes — i.e. anything authored, as opposed
+/// to in-repo Helm charts and operator manifests).
+///
+/// The driver in `main.rs` runs only one checker per repo per kind, and
+/// the violation message points at the canonical migration recipe (`feira
+/// init` from caixa-feira, or copying hello-rio's caixa.lisp template).
+pub struct CaixaNaiveteChecker;
+
+impl CseChecker for CaixaNaiveteChecker {
+    fn kind(&self) -> CseCheckKind {
+        CseCheckKind::CaixaNaivete
+    }
+
+    fn check(&self, repo: &RepoContext, violations: &mut Vec<CseViolation>) {
+        if repo.caixa_lisp.is_some() {
+            return;
+        }
+        // Skip well-known infra/meta repos that are *deliberately* not
+        // caixas — the org-wide GitOps tree, the theory docs, the
+        // pangea-architectures workspace, the catalog repos, etc. These
+        // get a free pass; everything else is fair game.
+        const EXEMPT: &[&str] = &[
+            "k8s",
+            "theory",
+            "nix",
+            "repo-forge",
+            "pangea-architectures",
+            "blackmatter",
+            "blackmatter-shell",
+            "blackmatter-nvim",
+            "blackmatter-desktop",
+            "blackmatter-claude",
+            "blackmatter-pleme",
+            "blackmatter-kubernetes",
+            "blackmatter-secrets",
+            "blackmatter-ghostty",
+            "blackmatter-macos",
+            "blackmatter-tailscale",
+            "blackmatter-anvil",
+            "blackmatter-cursor",
+            "blackmatter-movie",
+            "blackmatter-security",
+            "blackmatter-services",
+            "blackmatter-tend",
+            "blackmatter-akeyless",
+            "blackmatter-atlassian",
+            "blackmatter-zig",
+            "blackmatter-go",
+            "blackmatter-opencode",
+            "blackmatter-ayatsuri",
+            "kindling-profiles",
+            "helmworks",
+            "lareira-charts",
+        ];
+        if EXEMPT.iter().any(|n| *n == repo.name.as_str()) {
+            return;
+        }
+        violations.push(CseViolation::MissingCaixaManifest {
+            repo: repo.name.clone(),
+            remediation: "Author a `caixa.lisp` at the repo root via \
+                `nix run github:pleme-io/caixa#feira -- init <name>` (or \
+                copy hello-rio/caixa.lisp as a template). caixa is the \
+                canonical Layer-0 source primitive — see \
+                theory/META-FRAMEWORK.md §I."
+                .into(),
+        });
     }
 }
