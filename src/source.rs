@@ -70,6 +70,12 @@ impl RepoSource for FilesystemSource {
     }
 }
 
+/// Public version of `load_context` — used by the single-repo CI gate
+/// (`cse-lint repo .`), which doesn't need workspace traversal.
+pub fn load_context_at(path: &Path, name: String) -> Result<RepoContext> {
+    load_context(path, name)
+}
+
 fn load_context(path: &Path, name: String) -> Result<RepoContext> {
     let read_optional = |rel: &str| -> Option<String> {
         let p = path.join(rel);

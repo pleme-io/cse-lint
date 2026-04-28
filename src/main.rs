@@ -21,7 +21,7 @@ mod report;
 mod scaffold;
 mod source;
 
-use anyhow::Result;
+use anyhow::{Context as _, Result};
 use clap::{Parser, Subcommand, ValueEnum};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
@@ -106,6 +106,28 @@ enum Command {
         /// Auto-commit each scaffolded repo (requires --apply).
         #[arg(long)]
         commit: bool,
+    },
+
+    /// Audit a *single* repo (intended for CI gates inside the repo's
+    /// own workspace). Runs the local-only checkers — claude-md-pointer,
+    /// hand-roll, module-trio-adoption, caixa-naivete — skips the cross-
+    /// repo checks (manifest-membership + deployment-coverage) that need
+    /// access to the workspace root.
+    ///
+    /// Invoked from substrate/.github/workflows/caixa-publish.yml as a
+    /// pre-build gate; every caixa repo is gated automatically.
+    Repo {
+        /// Path to the repo being audited. Default: CWD.
+        #[arg(default_value = ".")]
+        path: String,
+
+        /// Output JSON instead of human-readable.
+        #[arg(long)]
+        json: bool,
+
+        /// Exit non-zero if any violations are found.
+        #[arg(long)]
+        strict: bool,
     },
 
     /// Auto-remediate violations. Defaults to dry-run.
@@ -213,6 +235,65 @@ fn main() -> Result<()> {
 
             let total_violations: usize = report.violations_by_kind.values().sum();
             if strict && total_violations > 0 {
+                std::process::exit(1);
+            }
+            Ok(())
+        }
+        Command::Repo { path, json, strict } => {
+            // Resolve path → absolute → repo name = last component.
+            let abs = std::fs::canonicalize(expand_tilde(&path))
+                .with_context(|| format!("resolving {path}"))?;
+            let name = abs
+                .file_name()
+                .and_then(|s| s.to_str())
+                .unwrap_or("repo")
+                .to_string();
+            let ctx = source::load_context_at(&abs, name.clone())?;
+
+            // Local-only checkers. ManifestMembership and DeploymentCoverage
+            // need a workspace-root view (ecosystem manifest, k8s/ tree)
+            // that single-repo CI doesn't have, so we skip them.
+            let checkers: Vec<Box<dyn CseChecker>> = vec![
+                Box::new(ClaudeMdPointerChecker),
+                Box::new(HandRollDetectionChecker),
+                Box::new(ModuleTrioAdoptionChecker),
+                Box::new(CaixaNaiveteChecker),
+            ];
+
+            let mut violations = Vec::new();
+            let mut checks_run = Vec::new();
+            for checker in &checkers {
+                checker.check(&ctx, &mut violations);
+                checks_run.push(checker.kind());
+            }
+            let pass = violations.is_empty();
+            let mut totals: BTreeMap<CseCheckKind, usize> = BTreeMap::new();
+            for kind in CseCheckKind::all() {
+                totals.insert(kind, 0);
+            }
+            for v in &violations {
+                *totals.entry(v.kind()).or_insert(0) += 1;
+            }
+
+            let report = CseAuditReport {
+                total_repos: 1,
+                passing_repos: usize::from(pass),
+                repos: vec![RepoResult {
+                    repo_name: name.clone(),
+                    violations: violations.clone(),
+                    checks_run,
+                    pass,
+                }],
+                violations_by_kind: totals,
+                run_at: chrono_now(),
+            };
+
+            if json {
+                println!("{}", report::render_json(&report)?);
+            } else {
+                print!("{}", report::render_human(&report));
+            }
+            if strict && !violations.is_empty() {
                 std::process::exit(1);
             }
             Ok(())
