@@ -449,3 +449,134 @@ impl CseChecker for CaixaNaiveteChecker {
         });
     }
 }
+
+// ─── 7. GuiAppConsumesIshou ──────────────────────────────────────────
+/// Asserts that any Rust crate consuming the substrate's GPU stack
+/// (`garasu` and/or `madori`) also consumes `ishou-tokens` — the
+/// fleet's typed colour-space primitive. Without `ishou-tokens` the
+/// app must hand-roll an `Srgb → Linear` conversion (or, worse, write
+/// raw sRGB into a wgpu surface and accept the gamma confusion), both
+/// of which the theme architecture eliminates by construction.
+///
+/// See `pleme-io/theory/THEME-ARCHITECTURE.md`.
+pub struct GuiAppConsumesIshouChecker;
+
+impl CseChecker for GuiAppConsumesIshouChecker {
+    fn kind(&self) -> CseCheckKind {
+        CseCheckKind::GuiAppConsumesIshou
+    }
+
+    fn check(&self, repo: &RepoContext, violations: &mut Vec<CseViolation>) {
+        let Some(cargo) = repo.cargo_toml.as_ref() else {
+            return;
+        };
+        // Exempt: ishou (can't depend on itself) and the substrate
+        // libraries `garasu`/`madori`/`egaku`/`irodzuki`/`irodori` —
+        // they sit *below* ishou-tokens in the dep graph and would
+        // form a cycle. Same for ishou-tokens' own siblings.
+        const EXEMPT: &[&str] = &[
+            "ishou",
+            "garasu",
+            "madori",
+            "egaku",
+            "irodzuki",
+            "irodori",
+            "shikumi",
+            "kaname",
+            "hasami",
+            "tsunagu",
+            "tsuuchi",
+            "soushi",
+            "awase",
+        ];
+        if EXEMPT.iter().any(|n| *n == repo.name.as_str()) {
+            return;
+        }
+        // Heuristic: a "GUI app on the substrate's GPU stack" depends
+        // on garasu or madori as a Cargo dep. `crate-name = "…"` lines
+        // in [dependencies] / [dev-dependencies] sections (and the
+        // `garasu = { …` shorthand) all contain `garasu` / `madori`.
+        // The check is a substring match on the raw Cargo.toml — TOML
+        // parse-then-inspect would be more precise but no false
+        // positives in practice across the fleet.
+        let depends_on_garasu = cargo.contains("garasu");
+        let depends_on_madori = cargo.contains("madori");
+        if !(depends_on_garasu || depends_on_madori) {
+            return;
+        }
+        if cargo.contains("ishou-tokens") || cargo.contains("ishou_tokens") {
+            return;
+        }
+        let gpu_dep = if depends_on_garasu { "garasu" } else { "madori" };
+        violations.push(CseViolation::MissingIshouTokensDep {
+            repo: repo.name.clone(),
+            gpu_dep: gpu_dep.into(),
+            remediation: "Add `ishou-tokens = { git = \
+                \"https://github.com/pleme-io/ishou\", features = [\"wgpu\"] }` \
+                to Cargo.toml's [dependencies] and route every \
+                `wgpu::Color` construction through \
+                `ishou_tokens::Srgb::to_linear`. See \
+                pleme-io/theory/THEME-ARCHITECTURE.md."
+                .into(),
+        });
+    }
+}
+
+// ─── 8. NoForeignNordSource ──────────────────────────────────────────
+/// Asserts that no file in the repo source tree carries a hardcoded
+/// Nord palette source outside `ishou-tokens`. The architecture mandates
+/// one Nord: the ishou Nord. Local copies — `themes/nord/colors.nix`,
+/// inline `#2e3440` literals in render code, base16-shaped YAML fixtures
+/// not under `tests/` — all drift the fleet.
+///
+/// Detection is structural: a tracked file path that *names* Nord
+/// outside the test/fixture pattern. Inline literal scans are
+/// intentionally **not** part of V0 because legitimate uses exist
+/// (transient hex tests, docs that quote the canonical palette). The
+/// structural rule (no `themes/nord/` directories outside ishou) is
+/// the load-bearing one — it's how mado, ayatsuri, blackmatter-mado
+/// historically each grew their own copy. See
+/// `pleme-io/theory/THEME-ARCHITECTURE.md`.
+pub struct NoForeignNordSourceChecker;
+
+impl CseChecker for NoForeignNordSourceChecker {
+    fn kind(&self) -> CseCheckKind {
+        CseCheckKind::NoForeignNordSource
+    }
+
+    fn check(&self, repo: &RepoContext, violations: &mut Vec<CseViolation>) {
+        // Exempt ishou (the source) and theory (which quotes the
+        // palette for documentation). Everywhere else fair game.
+        if repo.name == "ishou" || repo.name == "theory" || repo.name == "irodori" {
+            return;
+        }
+        // Walk a few well-known "local theme" paths. Cheap: O(handful
+        // of stat calls) per repo. Add patterns as the fleet surfaces
+        // them; the existing set covers every drift we've already
+        // observed.
+        const SUSPECTS: &[&str] = &[
+            "module/themes/nord/colors.nix",
+            "module/themes/nord.yaml",
+            "themes/nord/colors.nix",
+            "themes/nord.yaml",
+            "src/themes/nord.rs",
+            "assets/nord.yaml",
+        ];
+        for suspect in SUSPECTS {
+            if repo.path.join(suspect).exists() {
+                violations.push(CseViolation::ForeignNordSource {
+                    repo: repo.name.clone(),
+                    relative_path: (*suspect).to_string(),
+                    remediation: "Delete the local Nord file and consume the \
+                        fleet's canonical palette via \
+                        `inputs.ishou.packages.${system}.stylix-base16-nord-dark` \
+                        (foreign-app HM modules) or \
+                        `ishou_tokens::ColorPalette::pleme()` \
+                        (Rust GUI apps). See \
+                        pleme-io/theory/THEME-ARCHITECTURE.md."
+                        .into(),
+                });
+            }
+        }
+    }
+}

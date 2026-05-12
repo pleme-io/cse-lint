@@ -76,5 +76,19 @@ fn violation_message(v: &crate::model::CseViolation) -> (String, String) {
         MissingCaixaManifest { remediation, .. } => {
             ("repo lacks a caixa.lisp at the root".into(), remediation.clone())
         }
+        MissingIshouTokensDep { gpu_dep, remediation, .. } => {
+            (
+                format!(
+                    "GUI app depends on `{gpu_dep}` but not on `ishou-tokens` — the typed theme primitive"
+                ),
+                remediation.clone(),
+            )
+        }
+        ForeignNordSource { relative_path, remediation, .. } => {
+            (
+                format!("foreign Nord palette source: {relative_path}"),
+                remediation.clone(),
+            )
+        }
     }
 }

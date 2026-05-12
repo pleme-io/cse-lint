@@ -92,5 +92,6 @@ fn load_context(path: &Path, name: String) -> Result<RepoContext> {
         flake_nix: read_optional("flake.nix"),
         module_nix: read_optional("module/default.nix"),
         caixa_lisp: read_optional("caixa.lisp"),
+        cargo_toml: read_optional("Cargo.toml"),
     })
 }

@@ -22,6 +22,11 @@ pub struct RepoContext {
     pub module_nix: Option<String>,
     /// Top-level caixa.lisp content (None if the repo isn't caixa-native).
     pub caixa_lisp: Option<String>,
+    /// Top-level Cargo.toml content (None for non-Rust repos). Used by
+    /// the theme-architecture invariants (GuiAppConsumesIshou etc.) to
+    /// inspect declared dependencies without re-reading from disk per
+    /// checker.
+    pub cargo_toml: Option<String>,
 }
 
 /// Tag identifying which CSE invariant a check verifies.
@@ -58,6 +63,20 @@ pub enum CseCheckKind {
     /// the migration window completes. Drives fleet adoption of caixa as
     /// the primitive (per theory/META-FRAMEWORK.md §I).
     CaixaNaivete,
+    /// Any Rust crate that depends on `garasu` or `madori` (i.e. is a
+    /// pleme-io GUI app on the substrate's GPU stack) MUST also depend
+    /// on `ishou-tokens`. The theme architecture
+    /// (theory/THEME-ARCHITECTURE.md) makes gamma-correct colour
+    /// construction structurally impossible without ishou-tokens'
+    /// typed Srgb → Linear → wgpu::Color path.
+    GuiAppConsumesIshou,
+    /// The only file in the pleme-io source tree carrying a Nord
+    /// palette source is `ishou-tokens/src/color.rs` (plus its tests).
+    /// Any other file with a hardcoded `#2e3440` / `polar_night_0` /
+    /// `aurora_red` literal is fleet drift; the theme architecture
+    /// makes ishou the single source for foreign apps (via the stylix
+    /// base16 render) and pleme-io GUI apps (via the typed Cargo dep).
+    NoForeignNordSource,
 }
 
 impl CseCheckKind {
@@ -69,6 +88,8 @@ impl CseCheckKind {
             CseCheckKind::ModuleTrioAdoption => "module-trio-adoption",
             CseCheckKind::DeploymentCoverage => "deployment-coverage",
             CseCheckKind::CaixaNaivete => "caixa-naivete",
+            CseCheckKind::GuiAppConsumesIshou => "gui-app-consumes-ishou",
+            CseCheckKind::NoForeignNordSource => "no-foreign-nord-source",
         }
     }
 
@@ -80,10 +101,12 @@ impl CseCheckKind {
             CseCheckKind::ModuleTrioAdoption => "idiom-first",
             CseCheckKind::DeploymentCoverage => "promises hold mechanically",
             CseCheckKind::CaixaNaivete => "generation over composition",
+            CseCheckKind::GuiAppConsumesIshou => "one typed theme primitive",
+            CseCheckKind::NoForeignNordSource => "one typed theme primitive",
         }
     }
 
-    pub fn all() -> [CseCheckKind; 6] {
+    pub fn all() -> [CseCheckKind; 8] {
         [
             CseCheckKind::ClaudeMdPointer,
             CseCheckKind::HandRollDetection,
@@ -91,6 +114,8 @@ impl CseCheckKind {
             CseCheckKind::ModuleTrioAdoption,
             CseCheckKind::DeploymentCoverage,
             CseCheckKind::CaixaNaivete,
+            CseCheckKind::GuiAppConsumesIshou,
+            CseCheckKind::NoForeignNordSource,
         ]
     }
 }
@@ -139,6 +164,24 @@ pub enum CseViolation {
         repo: String,
         remediation: String,
     },
+    /// The repo's Cargo.toml depends on `garasu` and/or `madori` (i.e. is
+    /// a pleme-io GUI app) but doesn't depend on `ishou-tokens`. The
+    /// theme architecture mandates `ishou-tokens` as the typed colour-
+    /// space primitive for every fleet GUI consumer.
+    MissingIshouTokensDep {
+        repo: String,
+        gpu_dep: String,
+        remediation: String,
+    },
+    /// The repo carries a Nord palette source file outside ishou-tokens —
+    /// e.g. a local `themes/nord/colors.nix`, a hardcoded `#2e3440`
+    /// constant in a non-test file, an inline base16 yaml. The fleet's
+    /// one Nord lives in `ishou-tokens/src/color.rs`.
+    ForeignNordSource {
+        repo: String,
+        relative_path: String,
+        remediation: String,
+    },
 }
 
 impl CseViolation {
@@ -150,6 +193,8 @@ impl CseViolation {
             CseViolation::LegacyModulePattern { .. } => CseCheckKind::ModuleTrioAdoption,
             CseViolation::MissingDeployBundle { .. } => CseCheckKind::DeploymentCoverage,
             CseViolation::MissingCaixaManifest { .. } => CseCheckKind::CaixaNaivete,
+            CseViolation::MissingIshouTokensDep { .. } => CseCheckKind::GuiAppConsumesIshou,
+            CseViolation::ForeignNordSource { .. } => CseCheckKind::NoForeignNordSource,
         }
     }
 
@@ -161,6 +206,8 @@ impl CseViolation {
             CseViolation::LegacyModulePattern { repo, .. } => repo,
             CseViolation::MissingDeployBundle { repo, .. } => repo,
             CseViolation::MissingCaixaManifest { repo, .. } => repo,
+            CseViolation::MissingIshouTokensDep { repo, .. } => repo,
+            CseViolation::ForeignNordSource { repo, .. } => repo,
         }
     }
 }

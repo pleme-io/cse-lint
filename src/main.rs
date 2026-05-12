@@ -28,8 +28,8 @@ use std::path::PathBuf;
 
 use crate::check::{
     CaixaNaiveteChecker, ClaudeMdPointerChecker, CseChecker, DeploymentCoverageChecker,
-    HandRollDetectionChecker, ManifestMembershipChecker,
-    ModuleTrioAdoptionChecker,
+    GuiAppConsumesIshouChecker, HandRollDetectionChecker, ManifestMembershipChecker,
+    ModuleTrioAdoptionChecker, NoForeignNordSourceChecker,
 };
 use crate::fix::{all_remediators, apply_edit, EditAction, PlannedEdit};
 use crate::model::{CseAuditReport, CseCheckKind, RepoResult};
@@ -190,6 +190,8 @@ fn main() -> Result<()> {
                     workspace_root: Some(root.clone()),
                 }),
                 Box::new(CaixaNaiveteChecker),
+                Box::new(GuiAppConsumesIshouChecker),
+                Box::new(NoForeignNordSourceChecker),
             ];
 
             let repos = source.repos()?;
@@ -258,6 +260,8 @@ fn main() -> Result<()> {
                 Box::new(HandRollDetectionChecker),
                 Box::new(ModuleTrioAdoptionChecker),
                 Box::new(CaixaNaiveteChecker),
+                Box::new(GuiAppConsumesIshouChecker),
+                Box::new(NoForeignNordSourceChecker),
             ];
 
             let mut violations = Vec::new();
@@ -400,6 +404,8 @@ fn main() -> Result<()> {
                     workspace_root: Some(root.clone()),
                 }),
                 Box::new(CaixaNaiveteChecker),
+                Box::new(GuiAppConsumesIshouChecker),
+                Box::new(NoForeignNordSourceChecker),
             ];
             let remediators = all_remediators();
 
