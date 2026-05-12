@@ -601,3 +601,192 @@ impl CseChecker for NoForeignNordSourceChecker {
         }
     }
 }
+
+// ─── 9. GpuAppHeadlessMode ────────────────────────────────────────────
+/// Every pleme-io GPU app (Cargo.toml depends on `garasu` and/or
+/// `madori`) must ship the canonical headless-introspection surface:
+///
+/// - A `Mcp` subcommand in the binary's CLI enum, AND
+/// - A `tests/scenarios/` directory, AND
+/// - A `scenario` Rust module declared at the binary root.
+///
+/// Each missing primitive emits one violation so the operator sees
+/// every gap at once. See `theory/HEADLESS-INTROSPECTION.md` for the
+/// pattern and `mado` for the reference implementation.
+pub struct GpuAppHeadlessModeChecker;
+
+impl CseChecker for GpuAppHeadlessModeChecker {
+    fn kind(&self) -> CseCheckKind {
+        CseCheckKind::GpuAppHeadlessMode
+    }
+
+    fn check(&self, repo: &RepoContext, violations: &mut Vec<CseViolation>) {
+        let Some(cargo) = repo.cargo_toml.as_ref() else {
+            return;
+        };
+        // Exempt: the substrate libraries that sit *below* GPU apps in
+        // the dep graph, plus repos that aren't binaries.
+        const EXEMPT: &[&str] = &[
+            "garasu",
+            "madori",
+            "egaku",
+            "irodzuki",
+            "irodori",
+            "shikumi",
+            "kaname",
+            "ishou",
+        ];
+        if EXEMPT.iter().any(|n| *n == repo.name.as_str()) {
+            return;
+        }
+        // GPU app heuristic: depends on garasu or madori. Same shape
+        // as the GuiAppConsumesIshou check — when both fire on the
+        // same repo, the operator gets the full diagnosis.
+        let is_gpu_app = cargo.contains("garasu") || cargo.contains("madori");
+        if !is_gpu_app {
+            return;
+        }
+
+        // Check 1: scenario module declared at binary root.
+        let main_rs = repo.path.join("src/main.rs");
+        let main_has_scenario_mod = std::fs::read_to_string(&main_rs)
+            .map(|s| s.lines().any(|l| l.trim().starts_with("mod scenario")))
+            .unwrap_or(false);
+        if !main_has_scenario_mod {
+            violations.push(CseViolation::MissingHeadlessPrimitive {
+                repo: repo.name.clone(),
+                missing: "scenario module".into(),
+                remediation: "Add `mod scenario;` to src/main.rs and \
+                    port the scenario harness from \
+                    pleme-io/mado/src/scenario.rs. See \
+                    theory/HEADLESS-INTROSPECTION.md §4."
+                    .into(),
+            });
+        }
+
+        // Check 2: tests/scenarios directory.
+        let scenarios_dir = repo.path.join("tests/scenarios");
+        if !scenarios_dir.is_dir() {
+            violations.push(CseViolation::MissingHeadlessPrimitive {
+                repo: repo.name.clone(),
+                missing: "tests/scenarios/ directory".into(),
+                remediation: "Create tests/scenarios/ and add at least \
+                    one *.scenario.yaml. See \
+                    pleme-io/mado/tests/scenarios/ for the canonical \
+                    layout."
+                    .into(),
+            });
+        }
+
+        // Check 3: MCP subcommand. Heuristic — main.rs declares a
+        // subcommand whose name is `Mcp` (matches mado / nascent
+        // fleet pattern).
+        let main_has_mcp = std::fs::read_to_string(&main_rs)
+            .map(|s| s.contains("Mcp") && s.contains("SubCmd"))
+            .unwrap_or(false);
+        if !main_has_mcp {
+            violations.push(CseViolation::MissingHeadlessPrimitive {
+                repo: repo.name.clone(),
+                missing: "mcp subcommand".into(),
+                remediation: "Add a `Mcp` variant to your CLI's `SubCmd` \
+                    enum and dispatch to an in-process kaname MCP \
+                    server. See pleme-io/mado/src/main.rs."
+                    .into(),
+            });
+        }
+    }
+}
+
+// ─── 10. McpStdoutClean ───────────────────────────────────────────────
+/// Any binary that registers an rmcp / kaname MCP server must route
+/// tracing to **stderr** so stdout stays clean for JSON-RPC framing.
+/// Detection: a repo's Cargo.toml mentions rmcp / kaname (it's an MCP
+/// host) AND main.rs lacks `init_tracing_to_stderr` (it's polluting
+/// stdout).
+pub struct McpStdoutCleanChecker;
+
+impl CseChecker for McpStdoutCleanChecker {
+    fn kind(&self) -> CseCheckKind {
+        CseCheckKind::McpStdoutClean
+    }
+
+    fn check(&self, repo: &RepoContext, violations: &mut Vec<CseViolation>) {
+        let Some(cargo) = repo.cargo_toml.as_ref() else {
+            return;
+        };
+        // Exempt the canonical kaname / shidou libraries themselves —
+        // they define the primitives, they don't consume them.
+        if matches!(repo.name.as_str(), "kaname" | "shidou") {
+            return;
+        }
+        let hosts_mcp = cargo.contains("rmcp") || cargo.contains("kaname");
+        if !hosts_mcp {
+            return;
+        }
+        let main_rs = repo.path.join("src/main.rs");
+        let main = match std::fs::read_to_string(&main_rs) {
+            Ok(s) => s,
+            Err(_) => return,
+        };
+        if main.contains("init_tracing_to_stderr") {
+            return;
+        }
+        violations.push(CseViolation::McpStdoutPolluted {
+            repo: repo.name.clone(),
+            remediation: "Replace `shidou::init_tracing()` with \
+                `shidou::init_tracing_to_stderr()` inside the `Mcp` \
+                dispatch branch. Stdout is the JSON-RPC channel — any \
+                log line on stdout breaks the protocol. See \
+                theory/HEADLESS-INTROSPECTION.md §3."
+                .into(),
+        });
+    }
+}
+
+// ─── 11. ScenarioCorpusPresent ────────────────────────────────────────
+/// A GPU app crate with a `tests/scenarios/` directory must ship at
+/// least one `*.scenario.yaml`. Empty corpus = no proof. The
+/// scenario harness is a CI-gated substrate of provable behaviour;
+/// without at least one scenario, the gate is trivially-passing.
+pub struct ScenarioCorpusPresentChecker;
+
+impl CseChecker for ScenarioCorpusPresentChecker {
+    fn kind(&self) -> CseCheckKind {
+        CseCheckKind::ScenarioCorpusPresent
+    }
+
+    fn check(&self, repo: &RepoContext, violations: &mut Vec<CseViolation>) {
+        let dir = repo.path.join("tests/scenarios");
+        if !dir.is_dir() {
+            // Handled by the GpuAppHeadlessMode check — don't
+            // duplicate the violation here.
+            return;
+        }
+        let mut found = false;
+        if let Ok(entries) = std::fs::read_dir(&dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path
+                    .file_name()
+                    .and_then(|s| s.to_str())
+                    .map(|s| s.ends_with(".scenario.yaml"))
+                    .unwrap_or(false)
+                {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if !found {
+            violations.push(CseViolation::EmptyScenarioCorpus {
+                repo: repo.name.clone(),
+                remediation: "Add at least one *.scenario.yaml to \
+                    tests/scenarios/. Capture a real reproducer with \
+                    `<binary> record --output tests/scenarios/<bug>.scenario.yaml \
+                    -- <repro-cmd>` and edit in expect: assertions. \
+                    See pleme-io/mado/tests/scenarios/README.md."
+                    .into(),
+            });
+        }
+    }
+}

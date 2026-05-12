@@ -77,6 +77,26 @@ pub enum CseCheckKind {
     /// makes ishou the single source for foreign apps (via the stylix
     /// base16 render) and pleme-io GUI apps (via the typed Cargo dep).
     NoForeignNordSource,
+    /// Any pleme-io GPU app (Cargo.toml depends on garasu / madori) MUST
+    /// ship an MCP-backed headless mode the way mado does — see
+    /// `pleme-io/theory/HEADLESS-INTROSPECTION.md`. The audit checks
+    /// for: an `mcp` subcommand declared in `Cli` / `SubCmd`, a
+    /// `tests/scenarios/` directory, and a `scenario` module. Missing
+    /// any of these is fleet drift — every visual bug becomes an
+    /// operator-only screenshot until the headless surface exists.
+    GpuAppHeadlessMode,
+    /// Any binary that runs an MCP server (rmcp / kaname) MUST init
+    /// tracing to stderr in its `mcp` subcommand so stdout stays clean
+    /// for the JSON-RPC framing. Detected by grepping the binary's
+    /// main.rs for `init_tracing_to_stderr` adjacent to the MCP
+    /// dispatch site.
+    McpStdoutClean,
+    /// Any pleme-io GPU app crate MUST ship at least one
+    /// `*.scenario.yaml` in `tests/scenarios/`. Missing a corpus
+    /// means there's nothing CI-gating the app's behaviour at the
+    /// cell/state level — operator-only screenshots are not
+    /// regression tests.
+    ScenarioCorpusPresent,
 }
 
 impl CseCheckKind {
@@ -90,6 +110,9 @@ impl CseCheckKind {
             CseCheckKind::CaixaNaivete => "caixa-naivete",
             CseCheckKind::GuiAppConsumesIshou => "gui-app-consumes-ishou",
             CseCheckKind::NoForeignNordSource => "no-foreign-nord-source",
+            CseCheckKind::GpuAppHeadlessMode => "gpu-app-headless-mode",
+            CseCheckKind::McpStdoutClean => "mcp-stdout-clean",
+            CseCheckKind::ScenarioCorpusPresent => "scenario-corpus-present",
         }
     }
 
@@ -103,10 +126,13 @@ impl CseCheckKind {
             CseCheckKind::CaixaNaivete => "generation over composition",
             CseCheckKind::GuiAppConsumesIshou => "one typed theme primitive",
             CseCheckKind::NoForeignNordSource => "one typed theme primitive",
+            CseCheckKind::GpuAppHeadlessMode => "every GPU app provably self-diagnoses",
+            CseCheckKind::McpStdoutClean => "every MCP binary keeps stdout clean",
+            CseCheckKind::ScenarioCorpusPresent => "every fix lands with its regression test",
         }
     }
 
-    pub fn all() -> [CseCheckKind; 8] {
+    pub fn all() -> [CseCheckKind; 11] {
         [
             CseCheckKind::ClaudeMdPointer,
             CseCheckKind::HandRollDetection,
@@ -116,6 +142,9 @@ impl CseCheckKind {
             CseCheckKind::CaixaNaivete,
             CseCheckKind::GuiAppConsumesIshou,
             CseCheckKind::NoForeignNordSource,
+            CseCheckKind::GpuAppHeadlessMode,
+            CseCheckKind::McpStdoutClean,
+            CseCheckKind::ScenarioCorpusPresent,
         ]
     }
 }
@@ -182,6 +211,29 @@ pub enum CseViolation {
         relative_path: String,
         remediation: String,
     },
+    /// A GPU app (Cargo.toml depends on garasu / madori) is missing
+    /// one of the canonical headless-introspection primitives —
+    /// `mcp` subcommand, `tests/scenarios/`, or a `scenario` module.
+    /// See `theory/HEADLESS-INTROSPECTION.md` for the full pattern.
+    MissingHeadlessPrimitive {
+        repo: String,
+        missing: String,
+        remediation: String,
+    },
+    /// A binary that registers an rmcp / kaname MCP server doesn't
+    /// init tracing to stderr — stdout pollution breaks JSON-RPC
+    /// framing in MCP mode. See `shidou::init_tracing_to_stderr`.
+    McpStdoutPolluted {
+        repo: String,
+        remediation: String,
+    },
+    /// A GPU app has a `tests/scenarios/` directory but it contains
+    /// no `*.scenario.yaml` files. The corpus is the CI-gated
+    /// substrate of provable behaviour — empty corpus = no proof.
+    EmptyScenarioCorpus {
+        repo: String,
+        remediation: String,
+    },
 }
 
 impl CseViolation {
@@ -195,6 +247,9 @@ impl CseViolation {
             CseViolation::MissingCaixaManifest { .. } => CseCheckKind::CaixaNaivete,
             CseViolation::MissingIshouTokensDep { .. } => CseCheckKind::GuiAppConsumesIshou,
             CseViolation::ForeignNordSource { .. } => CseCheckKind::NoForeignNordSource,
+            CseViolation::MissingHeadlessPrimitive { .. } => CseCheckKind::GpuAppHeadlessMode,
+            CseViolation::McpStdoutPolluted { .. } => CseCheckKind::McpStdoutClean,
+            CseViolation::EmptyScenarioCorpus { .. } => CseCheckKind::ScenarioCorpusPresent,
         }
     }
 
@@ -208,6 +263,9 @@ impl CseViolation {
             CseViolation::MissingCaixaManifest { repo, .. } => repo,
             CseViolation::MissingIshouTokensDep { repo, .. } => repo,
             CseViolation::ForeignNordSource { repo, .. } => repo,
+            CseViolation::MissingHeadlessPrimitive { repo, .. } => repo,
+            CseViolation::McpStdoutPolluted { repo, .. } => repo,
+            CseViolation::EmptyScenarioCorpus { repo, .. } => repo,
         }
     }
 }

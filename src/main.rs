@@ -28,8 +28,9 @@ use std::path::PathBuf;
 
 use crate::check::{
     CaixaNaiveteChecker, ClaudeMdPointerChecker, CseChecker, DeploymentCoverageChecker,
-    GuiAppConsumesIshouChecker, HandRollDetectionChecker, ManifestMembershipChecker,
-    ModuleTrioAdoptionChecker, NoForeignNordSourceChecker,
+    GpuAppHeadlessModeChecker, GuiAppConsumesIshouChecker, HandRollDetectionChecker,
+    ManifestMembershipChecker, McpStdoutCleanChecker, ModuleTrioAdoptionChecker,
+    NoForeignNordSourceChecker, ScenarioCorpusPresentChecker,
 };
 use crate::fix::{all_remediators, apply_edit, EditAction, PlannedEdit};
 use crate::model::{CseAuditReport, CseCheckKind, RepoResult};
@@ -192,6 +193,9 @@ fn main() -> Result<()> {
                 Box::new(CaixaNaiveteChecker),
                 Box::new(GuiAppConsumesIshouChecker),
                 Box::new(NoForeignNordSourceChecker),
+                Box::new(GpuAppHeadlessModeChecker),
+                Box::new(McpStdoutCleanChecker),
+                Box::new(ScenarioCorpusPresentChecker),
             ];
 
             let repos = source.repos()?;
@@ -262,6 +266,9 @@ fn main() -> Result<()> {
                 Box::new(CaixaNaiveteChecker),
                 Box::new(GuiAppConsumesIshouChecker),
                 Box::new(NoForeignNordSourceChecker),
+                Box::new(GpuAppHeadlessModeChecker),
+                Box::new(McpStdoutCleanChecker),
+                Box::new(ScenarioCorpusPresentChecker),
             ];
 
             let mut violations = Vec::new();
@@ -406,6 +413,9 @@ fn main() -> Result<()> {
                 Box::new(CaixaNaiveteChecker),
                 Box::new(GuiAppConsumesIshouChecker),
                 Box::new(NoForeignNordSourceChecker),
+                Box::new(GpuAppHeadlessModeChecker),
+                Box::new(McpStdoutCleanChecker),
+                Box::new(ScenarioCorpusPresentChecker),
             ];
             let remediators = all_remediators();
 

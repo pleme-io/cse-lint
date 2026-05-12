@@ -90,5 +90,25 @@ fn violation_message(v: &crate::model::CseViolation) -> (String, String) {
                 remediation.clone(),
             )
         }
+        MissingHeadlessPrimitive { missing, remediation, .. } => {
+            (
+                format!("GPU app missing headless primitive: {missing}"),
+                remediation.clone(),
+            )
+        }
+        McpStdoutPolluted { remediation, .. } => {
+            (
+                "MCP host doesn't route tracing to stderr — stdout protocol will get polluted"
+                    .into(),
+                remediation.clone(),
+            )
+        }
+        EmptyScenarioCorpus { remediation, .. } => {
+            (
+                "tests/scenarios/ exists but ships no *.scenario.yaml — empty corpus = no proof"
+                    .into(),
+                remediation.clone(),
+            )
+        }
     }
 }
