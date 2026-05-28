@@ -27,10 +27,11 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 use crate::check::{
-    CaixaNaiveteChecker, ClaudeMdPointerChecker, CseChecker, DeploymentCoverageChecker,
-    GpuAppHeadlessModeChecker, GuiAppConsumesIshouChecker, HandRollDetectionChecker,
-    ManifestMembershipChecker, McpStdoutCleanChecker, ModuleTrioAdoptionChecker,
-    NoForeignNordSourceChecker, ScenarioCorpusPresentChecker,
+    BuildSpecCanonicalUrlChecker, BuildSpecSchemaVersionChecker, CaixaNaiveteChecker,
+    ClaudeMdPointerChecker, CseChecker, DeploymentCoverageChecker, GpuAppHeadlessModeChecker,
+    GuiAppConsumesIshouChecker, HandRollDetectionChecker, ManifestMembershipChecker,
+    McpStdoutCleanChecker, ModuleTrioAdoptionChecker, NoForeignNordSourceChecker,
+    NoLockfileBuilderDirectImportChecker, ScenarioCorpusPresentChecker,
 };
 use crate::fix::{all_remediators, apply_edit, EditAction, PlannedEdit};
 use crate::model::{CseAuditReport, CseCheckKind, RepoResult};
@@ -196,6 +197,9 @@ fn main() -> Result<()> {
                 Box::new(GpuAppHeadlessModeChecker),
                 Box::new(McpStdoutCleanChecker),
                 Box::new(ScenarioCorpusPresentChecker),
+                Box::new(BuildSpecCanonicalUrlChecker),
+                Box::new(BuildSpecSchemaVersionChecker::default()),
+                Box::new(NoLockfileBuilderDirectImportChecker),
             ];
 
             let repos = source.repos()?;
@@ -269,6 +273,9 @@ fn main() -> Result<()> {
                 Box::new(GpuAppHeadlessModeChecker),
                 Box::new(McpStdoutCleanChecker),
                 Box::new(ScenarioCorpusPresentChecker),
+                Box::new(BuildSpecCanonicalUrlChecker),
+                Box::new(BuildSpecSchemaVersionChecker::default()),
+                Box::new(NoLockfileBuilderDirectImportChecker),
             ];
 
             let mut violations = Vec::new();
@@ -416,6 +423,9 @@ fn main() -> Result<()> {
                 Box::new(GpuAppHeadlessModeChecker),
                 Box::new(McpStdoutCleanChecker),
                 Box::new(ScenarioCorpusPresentChecker),
+                Box::new(BuildSpecCanonicalUrlChecker),
+                Box::new(BuildSpecSchemaVersionChecker::default()),
+                Box::new(NoLockfileBuilderDirectImportChecker),
             ];
             let remediators = all_remediators();
 

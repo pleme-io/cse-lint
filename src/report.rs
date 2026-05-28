@@ -110,5 +110,28 @@ fn violation_message(v: &crate::model::CseViolation) -> (String, String) {
                 remediation.clone(),
             )
         }
+        BuildSpecApiUrl { count, remediation, .. } => {
+            (
+                format!(
+                    "{count} crates.io/api/v1/ URLs in Cargo.build-spec.json — UA-403 trap"
+                ),
+                remediation.clone(),
+            )
+        }
+        BuildSpecStaleSchema { found, expected, remediation, .. } => {
+            (
+                format!(
+                    "Cargo.build-spec.json schema v{found} but gen-cargo emits v{expected}"
+                ),
+                remediation.clone(),
+            )
+        }
+        LockfileBuilderDirectImport { remediation, .. } => {
+            (
+                "flake.nix imports lockfile-builder.nix directly — bypasses substrate.rust.tool"
+                    .into(),
+                remediation.clone(),
+            )
+        }
     }
 }
