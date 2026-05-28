@@ -27,6 +27,11 @@ pub struct RepoContext {
     /// inspect declared dependencies without re-reading from disk per
     /// checker.
     pub cargo_toml: Option<String>,
+    /// Top-level `Cargo.build-spec.json` content. Read by the
+    /// build-spec invariants (BuildSpecCanonicalUrl, BuildSpecSchemaVersion)
+    /// that gate fleet drift back into the substrate's value-management
+    /// space.
+    pub cargo_build_spec_json: Option<String>,
 }
 
 /// Tag identifying which CSE invariant a check verifies.
@@ -97,6 +102,23 @@ pub enum CseCheckKind {
     /// cell/state level — operator-only screenshots are not
     /// regression tests.
     ScenarioCorpusPresent,
+    /// Every committed `Cargo.build-spec.json` MUST emit registry
+    /// URLs in the canonical `https://static.crates.io/crates/...`
+    /// form. The `/api/v1/.../download` redirect endpoint is rate-
+    /// limited and now 403's against nixpkgs' UA-less fetchurl.
+    /// Substrate has a transitional Nix-side rewrite; the source-of-
+    /// truth gate is here.
+    BuildSpecCanonicalUrl,
+    /// Every committed `Cargo.build-spec.json` MUST carry the current
+    /// gen-cargo `SCHEMA_VERSION`. Older specs are missing the typed
+    /// `build_rust_crate_args` field; substrate's lockfile-builder has
+    /// transitional `legacyArgs` fallback, sunsetting at M6.
+    BuildSpecSchemaVersion,
+    /// Per the prime directive (consumer flake = 4 lines), no
+    /// consumer `flake.nix` should directly `import "${substrate}/lib
+    /// /build/rust/lockfile-builder.nix"`. Use `substrate.rust.tool`
+    /// or `substrate.rust.workspace` instead.
+    NoLockfileBuilderDirectImport,
 }
 
 impl CseCheckKind {
@@ -113,6 +135,9 @@ impl CseCheckKind {
             CseCheckKind::GpuAppHeadlessMode => "gpu-app-headless-mode",
             CseCheckKind::McpStdoutClean => "mcp-stdout-clean",
             CseCheckKind::ScenarioCorpusPresent => "scenario-corpus-present",
+            CseCheckKind::BuildSpecCanonicalUrl => "build-spec-canonical-url",
+            CseCheckKind::BuildSpecSchemaVersion => "build-spec-schema-version",
+            CseCheckKind::NoLockfileBuilderDirectImport => "no-lockfile-builder-direct-import",
         }
     }
 
@@ -129,10 +154,13 @@ impl CseCheckKind {
             CseCheckKind::GpuAppHeadlessMode => "every GPU app provably self-diagnoses",
             CseCheckKind::McpStdoutClean => "every MCP binary keeps stdout clean",
             CseCheckKind::ScenarioCorpusPresent => "every fix lands with its regression test",
+            CseCheckKind::BuildSpecCanonicalUrl => "rust owns value computation",
+            CseCheckKind::BuildSpecSchemaVersion => "single source of truth",
+            CseCheckKind::NoLockfileBuilderDirectImport => "consumer flake is 4 lines",
         }
     }
 
-    pub fn all() -> [CseCheckKind; 11] {
+    pub fn all() -> [CseCheckKind; 14] {
         [
             CseCheckKind::ClaudeMdPointer,
             CseCheckKind::HandRollDetection,
@@ -145,6 +173,9 @@ impl CseCheckKind {
             CseCheckKind::GpuAppHeadlessMode,
             CseCheckKind::McpStdoutClean,
             CseCheckKind::ScenarioCorpusPresent,
+            CseCheckKind::BuildSpecCanonicalUrl,
+            CseCheckKind::BuildSpecSchemaVersion,
+            CseCheckKind::NoLockfileBuilderDirectImport,
         ]
     }
 }
@@ -234,6 +265,31 @@ pub enum CseViolation {
         repo: String,
         remediation: String,
     },
+    /// `Cargo.build-spec.json` carries one or more `crates.io/api/v1/`
+    /// URLs. gen-cargo emits canonical `static.crates.io` URLs since
+    /// 70774a2; older specs MUST be regenerated.
+    BuildSpecApiUrl {
+        repo: String,
+        count: usize,
+        remediation: String,
+    },
+    /// `Cargo.build-spec.json` schema version is below the current
+    /// gen-cargo `SCHEMA_VERSION`. Substrate's lockfile-builder is
+    /// transitional today, hard-gating at M6.
+    BuildSpecStaleSchema {
+        repo: String,
+        found: u32,
+        expected: u32,
+        remediation: String,
+    },
+    /// `flake.nix` imports `lockfile-builder.nix` directly instead of
+    /// going through the canonical `substrate.rust.tool` /
+    /// `substrate.rust.workspace` 4-line shape. Forces the consumer
+    /// flake to be invariantly minimal.
+    LockfileBuilderDirectImport {
+        repo: String,
+        remediation: String,
+    },
 }
 
 impl CseViolation {
@@ -250,6 +306,11 @@ impl CseViolation {
             CseViolation::MissingHeadlessPrimitive { .. } => CseCheckKind::GpuAppHeadlessMode,
             CseViolation::McpStdoutPolluted { .. } => CseCheckKind::McpStdoutClean,
             CseViolation::EmptyScenarioCorpus { .. } => CseCheckKind::ScenarioCorpusPresent,
+            CseViolation::BuildSpecApiUrl { .. } => CseCheckKind::BuildSpecCanonicalUrl,
+            CseViolation::BuildSpecStaleSchema { .. } => CseCheckKind::BuildSpecSchemaVersion,
+            CseViolation::LockfileBuilderDirectImport { .. } => {
+                CseCheckKind::NoLockfileBuilderDirectImport
+            }
         }
     }
 
@@ -266,6 +327,9 @@ impl CseViolation {
             CseViolation::MissingHeadlessPrimitive { repo, .. } => repo,
             CseViolation::McpStdoutPolluted { repo, .. } => repo,
             CseViolation::EmptyScenarioCorpus { repo, .. } => repo,
+            CseViolation::BuildSpecApiUrl { repo, .. } => repo,
+            CseViolation::BuildSpecStaleSchema { repo, .. } => repo,
+            CseViolation::LockfileBuilderDirectImport { repo, .. } => repo,
         }
     }
 }

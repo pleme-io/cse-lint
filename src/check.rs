@@ -790,3 +790,127 @@ impl CseChecker for ScenarioCorpusPresentChecker {
         }
     }
 }
+
+// ─── 12. BuildSpecCanonicalUrl ───────────────────────────────────────
+/// Asserts that every committed `Cargo.build-spec.json` emits
+/// registry URLs in the canonical `static.crates.io` form. The old
+/// `/api/v1/.../download` redirect endpoint is now rate-limited and
+/// 403's against nixpkgs' UA-less fetchurl. gen-cargo 70774a2+ emits
+/// the canonical form; this checker gates fleet drift back into the
+/// rate-limited URL space.
+pub struct BuildSpecCanonicalUrlChecker;
+
+impl CseChecker for BuildSpecCanonicalUrlChecker {
+    fn kind(&self) -> CseCheckKind {
+        CseCheckKind::BuildSpecCanonicalUrl
+    }
+
+    fn check(&self, repo: &RepoContext, violations: &mut Vec<CseViolation>) {
+        let spec = match &repo.cargo_build_spec_json {
+            Some(s) => s,
+            None => return,
+        };
+        // Cheap substring count — gen always emits the URL field on
+        // one line per crate, so this is exact.
+        let count = spec.matches("https://crates.io/api/v1/crates/").count();
+        if count > 0 {
+            violations.push(CseViolation::BuildSpecApiUrl {
+                repo: repo.name.clone(),
+                count,
+                remediation:
+                    "Run `gen build .` (gen >= 70774a2) to regenerate Cargo.build-spec.json with canonical static.crates.io URLs."
+                        .into(),
+            });
+        }
+    }
+}
+
+// ─── 13. BuildSpecSchemaVersion ──────────────────────────────────────
+/// Asserts that every committed `Cargo.build-spec.json` carries the
+/// current gen-cargo `SCHEMA_VERSION` (today: 3). Older specs lack
+/// the typed `build_rust_crate_args` field and force substrate's
+/// `legacyArgs` backward-compat path — duplicate computation that
+/// the prime directive forbids past M6.
+pub struct BuildSpecSchemaVersionChecker {
+    expected: u32,
+}
+
+impl Default for BuildSpecSchemaVersionChecker {
+    fn default() -> Self {
+        // The expected SCHEMA_VERSION mirrors gen-cargo's constant.
+        // Bump in lock-step when gen bumps.
+        Self { expected: 3 }
+    }
+}
+
+impl CseChecker for BuildSpecSchemaVersionChecker {
+    fn kind(&self) -> CseCheckKind {
+        CseCheckKind::BuildSpecSchemaVersion
+    }
+
+    fn check(&self, repo: &RepoContext, violations: &mut Vec<CseViolation>) {
+        let spec = match &repo.cargo_build_spec_json {
+            Some(s) => s,
+            None => return,
+        };
+        // Lightweight version extraction — avoids pulling in serde_json
+        // dep into cse-lint just for this check.
+        let found: u32 = spec
+            .lines()
+            .find_map(|l| {
+                let trimmed = l.trim_start();
+                trimmed.strip_prefix("\"version\": ").and_then(|tail| {
+                    tail.trim_end_matches(',').trim().parse::<u32>().ok()
+                })
+            })
+            .unwrap_or(0);
+        if found < self.expected {
+            violations.push(CseViolation::BuildSpecStaleSchema {
+                repo: repo.name.clone(),
+                found,
+                expected: self.expected,
+                remediation: format!(
+                    "Run `gen build .` to regenerate Cargo.build-spec.json against SCHEMA_VERSION {}.",
+                    self.expected
+                ),
+            });
+        }
+    }
+}
+
+// ─── 14. NoLockfileBuilderDirectImport ───────────────────────────────
+/// Asserts that consumer flakes don't import substrate's
+/// `lockfile-builder.nix` directly. The canonical 4-line shape goes
+/// through `substrate.rust.tool` / `substrate.rust.workspace` so that
+/// substrate-side abstractions (override composition, schema-version
+/// gating, URL canonicalization) apply uniformly.
+pub struct NoLockfileBuilderDirectImportChecker;
+
+fn lockfile_builder_direct_re() -> &'static Regex {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| {
+        Regex::new(r#"\$\{substrate\}/lib/build/rust/lockfile-builder\.nix"#)
+            .expect("lockfile-builder direct-import regex must compile")
+    })
+}
+
+impl CseChecker for NoLockfileBuilderDirectImportChecker {
+    fn kind(&self) -> CseCheckKind {
+        CseCheckKind::NoLockfileBuilderDirectImport
+    }
+
+    fn check(&self, repo: &RepoContext, violations: &mut Vec<CseViolation>) {
+        let flake = match &repo.flake_nix {
+            Some(f) => f,
+            None => return,
+        };
+        if lockfile_builder_direct_re().is_match(flake) {
+            violations.push(CseViolation::LockfileBuilderDirectImport {
+                repo: repo.name.clone(),
+                remediation:
+                    "Replace `import \"${substrate}/lib/build/rust/lockfile-builder.nix\"` with the canonical `substrate.rust.tool { src = ./.; }` shape (or `substrate.rust.workspace`)."
+                        .into(),
+            });
+        }
+    }
+}
