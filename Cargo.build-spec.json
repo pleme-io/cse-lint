@@ -1,7 +1,7 @@
 {
-  "version": 5,
+  "version": 8,
   "workspace": {
-    "root": "/Users/luis.d/code/github/pleme-io/cse-lint",
+    "root": "/Users/drzzln/code/github/pleme-io/cse-lint",
     "members": [
       {
         "name": "cse-lint",
@@ -2570,7 +2570,17 @@
   "flake_metadata": {
     "cse-lint": {
       "default_bin": "cse-lint",
-      "repo": "pleme-io/cse-lint"
+      "repo": "pleme-io/cse-lint",
+      "module_trio": {
+        "name": "cse-lint",
+        "description": "cse-lint — Constructive Substrate Engineering audit linter",
+        "packageAttr": "cse-lint",
+        "binaryName": "cse-lint",
+        "hmNamespace": "programs",
+        "withMcp": false,
+        "withHttp": false,
+        "withSystemDaemon": false
+      }
     }
   },
   "target_resolves": {
@@ -2601,7 +2611,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "perf-literal",
+            "std"
+          ]
         },
         "anstream-1.0.0": {
           "dependencies": [
@@ -2728,12 +2742,21 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "auto",
+            "default",
+            "wincon"
+          ]
         },
         "anstyle-1.0.14": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "anstyle-parse-1.0.0": {
           "dependencies": [
@@ -2760,17 +2783,26 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "utf8"
+          ]
         },
         "anstyle-query-1.1.5": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "anyhow-1.0.102": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "clap-4.6.1": {
           "dependencies": [
@@ -2817,7 +2849,17 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "color",
+            "default",
+            "derive",
+            "error-context",
+            "help",
+            "std",
+            "suggestions",
+            "usage"
+          ]
         },
         "clap_builder-4.6.0": {
           "dependencies": [
@@ -2904,7 +2946,15 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "color",
+            "error-context",
+            "help",
+            "std",
+            "suggestions",
+            "usage"
+          ]
         },
         "clap_derive-4.6.1": {
           "dependencies": [
@@ -2995,17 +3045,22 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "clap_lex-1.1.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "colorchoice-1.0.5": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "cse-lint-0.1.0": {
           "dependencies": [
@@ -3160,27 +3215,37 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "heck-0.5.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "is_terminal_polyfill-1.70.2": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "itoa-1.0.18": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "memchr-2.8.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "alloc",
+            "std"
+          ]
         },
         "proc-macro2-1.0.106": {
           "dependencies": [
@@ -3207,7 +3272,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "proc-macro"
+          ]
         },
         "quote-1.0.45": {
           "dependencies": [
@@ -3234,7 +3303,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "proc-macro"
+          ]
         },
         "regex-1.12.3": {
           "dependencies": [
@@ -3321,7 +3394,26 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "perf",
+            "perf-backtrack",
+            "perf-cache",
+            "perf-dfa",
+            "perf-inline",
+            "perf-literal",
+            "perf-onepass",
+            "std",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment"
+          ]
         },
         "regex-automata-0.4.14": {
           "dependencies": [
@@ -3388,17 +3480,54 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "alloc",
+            "dfa-onepass",
+            "hybrid",
+            "meta",
+            "nfa-backtrack",
+            "nfa-pikevm",
+            "nfa-thompson",
+            "perf-inline",
+            "perf-literal",
+            "perf-literal-multisubstring",
+            "perf-literal-substring",
+            "std",
+            "syntax",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment",
+            "unicode-word-boundary"
+          ]
         },
         "regex-syntax-0.8.10": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment"
+          ]
         },
         "same-file-1.0.6": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "serde-1.0.228": {
           "dependencies": [
@@ -3449,12 +3578,22 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "derive",
+            "serde_derive",
+            "std"
+          ]
         },
         "serde_core-1.0.228": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "result",
+            "std"
+          ]
         },
         "serde_derive-1.0.228": {
           "dependencies": [
@@ -3537,7 +3676,10 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "serde_json-1.0.149": {
           "dependencies": [
@@ -3624,12 +3766,17 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "strsim-0.11.1": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "syn-2.0.117": {
           "dependencies": [
@@ -3696,7 +3843,16 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "clone-impls",
+            "default",
+            "derive",
+            "full",
+            "parsing",
+            "printing",
+            "proc-macro"
+          ]
         },
         "thiserror-2.0.18": {
           "dependencies": [
@@ -3723,7 +3879,11 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "thiserror-impl-2.0.18": {
           "dependencies": [
@@ -3790,17 +3950,22 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "unicode-ident-1.0.24": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "utf8parse-0.2.2": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "walkdir-2.5.0": {
           "dependencies": [
@@ -3827,12 +3992,14 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "zmij-1.0.21": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         }
       }
     },
@@ -3863,7 +4030,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "perf-literal",
+            "std"
+          ]
         },
         "anstream-1.0.0": {
           "dependencies": [
@@ -3990,12 +4161,21 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "auto",
+            "default",
+            "wincon"
+          ]
         },
         "anstyle-1.0.14": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "anstyle-parse-1.0.0": {
           "dependencies": [
@@ -4022,17 +4202,26 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "utf8"
+          ]
         },
         "anstyle-query-1.1.5": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "anyhow-1.0.102": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "clap-4.6.1": {
           "dependencies": [
@@ -4079,7 +4268,17 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "color",
+            "default",
+            "derive",
+            "error-context",
+            "help",
+            "std",
+            "suggestions",
+            "usage"
+          ]
         },
         "clap_builder-4.6.0": {
           "dependencies": [
@@ -4166,7 +4365,15 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "color",
+            "error-context",
+            "help",
+            "std",
+            "suggestions",
+            "usage"
+          ]
         },
         "clap_derive-4.6.1": {
           "dependencies": [
@@ -4257,17 +4464,22 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "clap_lex-1.1.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "colorchoice-1.0.5": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "cse-lint-0.1.0": {
           "dependencies": [
@@ -4422,27 +4634,37 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "heck-0.5.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "is_terminal_polyfill-1.70.2": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "itoa-1.0.18": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "memchr-2.8.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "alloc",
+            "std"
+          ]
         },
         "proc-macro2-1.0.106": {
           "dependencies": [
@@ -4469,7 +4691,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "proc-macro"
+          ]
         },
         "quote-1.0.45": {
           "dependencies": [
@@ -4496,7 +4722,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "proc-macro"
+          ]
         },
         "regex-1.12.3": {
           "dependencies": [
@@ -4583,7 +4813,26 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "perf",
+            "perf-backtrack",
+            "perf-cache",
+            "perf-dfa",
+            "perf-inline",
+            "perf-literal",
+            "perf-onepass",
+            "std",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment"
+          ]
         },
         "regex-automata-0.4.14": {
           "dependencies": [
@@ -4650,17 +4899,54 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "alloc",
+            "dfa-onepass",
+            "hybrid",
+            "meta",
+            "nfa-backtrack",
+            "nfa-pikevm",
+            "nfa-thompson",
+            "perf-inline",
+            "perf-literal",
+            "perf-literal-multisubstring",
+            "perf-literal-substring",
+            "std",
+            "syntax",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment",
+            "unicode-word-boundary"
+          ]
         },
         "regex-syntax-0.8.10": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment"
+          ]
         },
         "same-file-1.0.6": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "serde-1.0.228": {
           "dependencies": [
@@ -4711,12 +4997,22 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "derive",
+            "serde_derive",
+            "std"
+          ]
         },
         "serde_core-1.0.228": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "result",
+            "std"
+          ]
         },
         "serde_derive-1.0.228": {
           "dependencies": [
@@ -4799,7 +5095,10 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "serde_json-1.0.149": {
           "dependencies": [
@@ -4886,12 +5185,17 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "strsim-0.11.1": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "syn-2.0.117": {
           "dependencies": [
@@ -4958,7 +5262,16 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "clone-impls",
+            "default",
+            "derive",
+            "full",
+            "parsing",
+            "printing",
+            "proc-macro"
+          ]
         },
         "thiserror-2.0.18": {
           "dependencies": [
@@ -4985,7 +5298,11 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "thiserror-impl-2.0.18": {
           "dependencies": [
@@ -5052,17 +5369,22 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "unicode-ident-1.0.24": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "utf8parse-0.2.2": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "walkdir-2.5.0": {
           "dependencies": [
@@ -5089,12 +5411,14 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "zmij-1.0.21": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         }
       }
     },
@@ -5125,7 +5449,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "perf-literal",
+            "std"
+          ]
         },
         "anstream-1.0.0": {
           "dependencies": [
@@ -5252,12 +5580,21 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "auto",
+            "default",
+            "wincon"
+          ]
         },
         "anstyle-1.0.14": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "anstyle-parse-1.0.0": {
           "dependencies": [
@@ -5284,17 +5621,26 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "utf8"
+          ]
         },
         "anstyle-query-1.1.5": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "anyhow-1.0.102": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "clap-4.6.1": {
           "dependencies": [
@@ -5341,7 +5687,17 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "color",
+            "default",
+            "derive",
+            "error-context",
+            "help",
+            "std",
+            "suggestions",
+            "usage"
+          ]
         },
         "clap_builder-4.6.0": {
           "dependencies": [
@@ -5428,7 +5784,15 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "color",
+            "error-context",
+            "help",
+            "std",
+            "suggestions",
+            "usage"
+          ]
         },
         "clap_derive-4.6.1": {
           "dependencies": [
@@ -5519,17 +5883,22 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "clap_lex-1.1.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "colorchoice-1.0.5": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "cse-lint-0.1.0": {
           "dependencies": [
@@ -5684,27 +6053,37 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "heck-0.5.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "is_terminal_polyfill-1.70.2": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "itoa-1.0.18": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "memchr-2.8.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "alloc",
+            "std"
+          ]
         },
         "proc-macro2-1.0.106": {
           "dependencies": [
@@ -5731,7 +6110,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "proc-macro"
+          ]
         },
         "quote-1.0.45": {
           "dependencies": [
@@ -5758,7 +6141,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "proc-macro"
+          ]
         },
         "regex-1.12.3": {
           "dependencies": [
@@ -5845,7 +6232,26 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "perf",
+            "perf-backtrack",
+            "perf-cache",
+            "perf-dfa",
+            "perf-inline",
+            "perf-literal",
+            "perf-onepass",
+            "std",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment"
+          ]
         },
         "regex-automata-0.4.14": {
           "dependencies": [
@@ -5912,17 +6318,54 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "alloc",
+            "dfa-onepass",
+            "hybrid",
+            "meta",
+            "nfa-backtrack",
+            "nfa-pikevm",
+            "nfa-thompson",
+            "perf-inline",
+            "perf-literal",
+            "perf-literal-multisubstring",
+            "perf-literal-substring",
+            "std",
+            "syntax",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment",
+            "unicode-word-boundary"
+          ]
         },
         "regex-syntax-0.8.10": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment"
+          ]
         },
         "same-file-1.0.6": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "serde-1.0.228": {
           "dependencies": [
@@ -5973,12 +6416,22 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "derive",
+            "serde_derive",
+            "std"
+          ]
         },
         "serde_core-1.0.228": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "result",
+            "std"
+          ]
         },
         "serde_derive-1.0.228": {
           "dependencies": [
@@ -6061,7 +6514,10 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "serde_json-1.0.149": {
           "dependencies": [
@@ -6148,12 +6604,17 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "strsim-0.11.1": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "syn-2.0.117": {
           "dependencies": [
@@ -6220,7 +6681,16 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "clone-impls",
+            "default",
+            "derive",
+            "full",
+            "parsing",
+            "printing",
+            "proc-macro"
+          ]
         },
         "thiserror-2.0.18": {
           "dependencies": [
@@ -6247,7 +6717,11 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "thiserror-impl-2.0.18": {
           "dependencies": [
@@ -6314,17 +6788,22 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "unicode-ident-1.0.24": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "utf8parse-0.2.2": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "walkdir-2.5.0": {
           "dependencies": [
@@ -6351,12 +6830,14 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "zmij-1.0.21": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         }
       }
     },
@@ -6387,7 +6868,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "perf-literal",
+            "std"
+          ]
         },
         "anstream-1.0.0": {
           "dependencies": [
@@ -6514,12 +6999,21 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "auto",
+            "default",
+            "wincon"
+          ]
         },
         "anstyle-1.0.14": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "anstyle-parse-1.0.0": {
           "dependencies": [
@@ -6546,17 +7040,26 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "utf8"
+          ]
         },
         "anstyle-query-1.1.5": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "anyhow-1.0.102": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "clap-4.6.1": {
           "dependencies": [
@@ -6603,7 +7106,17 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "color",
+            "default",
+            "derive",
+            "error-context",
+            "help",
+            "std",
+            "suggestions",
+            "usage"
+          ]
         },
         "clap_builder-4.6.0": {
           "dependencies": [
@@ -6690,7 +7203,15 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "color",
+            "error-context",
+            "help",
+            "std",
+            "suggestions",
+            "usage"
+          ]
         },
         "clap_derive-4.6.1": {
           "dependencies": [
@@ -6781,17 +7302,22 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "clap_lex-1.1.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "colorchoice-1.0.5": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "cse-lint-0.1.0": {
           "dependencies": [
@@ -6946,27 +7472,37 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "heck-0.5.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "is_terminal_polyfill-1.70.2": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "itoa-1.0.18": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "memchr-2.8.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "alloc",
+            "std"
+          ]
         },
         "proc-macro2-1.0.106": {
           "dependencies": [
@@ -6993,7 +7529,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "proc-macro"
+          ]
         },
         "quote-1.0.45": {
           "dependencies": [
@@ -7020,7 +7560,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "proc-macro"
+          ]
         },
         "regex-1.12.3": {
           "dependencies": [
@@ -7107,7 +7651,26 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "perf",
+            "perf-backtrack",
+            "perf-cache",
+            "perf-dfa",
+            "perf-inline",
+            "perf-literal",
+            "perf-onepass",
+            "std",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment"
+          ]
         },
         "regex-automata-0.4.14": {
           "dependencies": [
@@ -7174,17 +7737,54 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "alloc",
+            "dfa-onepass",
+            "hybrid",
+            "meta",
+            "nfa-backtrack",
+            "nfa-pikevm",
+            "nfa-thompson",
+            "perf-inline",
+            "perf-literal",
+            "perf-literal-multisubstring",
+            "perf-literal-substring",
+            "std",
+            "syntax",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment",
+            "unicode-word-boundary"
+          ]
         },
         "regex-syntax-0.8.10": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment"
+          ]
         },
         "same-file-1.0.6": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "serde-1.0.228": {
           "dependencies": [
@@ -7235,12 +7835,22 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "derive",
+            "serde_derive",
+            "std"
+          ]
         },
         "serde_core-1.0.228": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "result",
+            "std"
+          ]
         },
         "serde_derive-1.0.228": {
           "dependencies": [
@@ -7323,7 +7933,10 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "serde_json-1.0.149": {
           "dependencies": [
@@ -7410,12 +8023,17 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "strsim-0.11.1": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "syn-2.0.117": {
           "dependencies": [
@@ -7482,7 +8100,16 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "clone-impls",
+            "default",
+            "derive",
+            "full",
+            "parsing",
+            "printing",
+            "proc-macro"
+          ]
         },
         "thiserror-2.0.18": {
           "dependencies": [
@@ -7509,7 +8136,11 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "thiserror-impl-2.0.18": {
           "dependencies": [
@@ -7576,17 +8207,22 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "unicode-ident-1.0.24": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "utf8parse-0.2.2": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "walkdir-2.5.0": {
           "dependencies": [
@@ -7613,12 +8249,14 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "zmij-1.0.21": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         }
       }
     },
@@ -7649,7 +8287,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "perf-literal",
+            "std"
+          ]
         },
         "anstream-1.0.0": {
           "dependencies": [
@@ -7776,12 +8418,21 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "auto",
+            "default",
+            "wincon"
+          ]
         },
         "anstyle-1.0.14": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "anstyle-parse-1.0.0": {
           "dependencies": [
@@ -7808,17 +8459,26 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "utf8"
+          ]
         },
         "anstyle-query-1.1.5": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "anyhow-1.0.102": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "clap-4.6.1": {
           "dependencies": [
@@ -7865,7 +8525,17 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "color",
+            "default",
+            "derive",
+            "error-context",
+            "help",
+            "std",
+            "suggestions",
+            "usage"
+          ]
         },
         "clap_builder-4.6.0": {
           "dependencies": [
@@ -7952,7 +8622,15 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "color",
+            "error-context",
+            "help",
+            "std",
+            "suggestions",
+            "usage"
+          ]
         },
         "clap_derive-4.6.1": {
           "dependencies": [
@@ -8043,17 +8721,22 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "clap_lex-1.1.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "colorchoice-1.0.5": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "cse-lint-0.1.0": {
           "dependencies": [
@@ -8208,27 +8891,37 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "heck-0.5.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "is_terminal_polyfill-1.70.2": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "itoa-1.0.18": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "memchr-2.8.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "alloc",
+            "std"
+          ]
         },
         "proc-macro2-1.0.106": {
           "dependencies": [
@@ -8255,7 +8948,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "proc-macro"
+          ]
         },
         "quote-1.0.45": {
           "dependencies": [
@@ -8282,7 +8979,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "proc-macro"
+          ]
         },
         "regex-1.12.3": {
           "dependencies": [
@@ -8369,7 +9070,26 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "perf",
+            "perf-backtrack",
+            "perf-cache",
+            "perf-dfa",
+            "perf-inline",
+            "perf-literal",
+            "perf-onepass",
+            "std",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment"
+          ]
         },
         "regex-automata-0.4.14": {
           "dependencies": [
@@ -8436,17 +9156,54 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "alloc",
+            "dfa-onepass",
+            "hybrid",
+            "meta",
+            "nfa-backtrack",
+            "nfa-pikevm",
+            "nfa-thompson",
+            "perf-inline",
+            "perf-literal",
+            "perf-literal-multisubstring",
+            "perf-literal-substring",
+            "std",
+            "syntax",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment",
+            "unicode-word-boundary"
+          ]
         },
         "regex-syntax-0.8.10": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment"
+          ]
         },
         "same-file-1.0.6": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "serde-1.0.228": {
           "dependencies": [
@@ -8497,12 +9254,22 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "derive",
+            "serde_derive",
+            "std"
+          ]
         },
         "serde_core-1.0.228": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "result",
+            "std"
+          ]
         },
         "serde_derive-1.0.228": {
           "dependencies": [
@@ -8585,7 +9352,10 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "serde_json-1.0.149": {
           "dependencies": [
@@ -8672,12 +9442,17 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "strsim-0.11.1": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "syn-2.0.117": {
           "dependencies": [
@@ -8744,7 +9519,16 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "clone-impls",
+            "default",
+            "derive",
+            "full",
+            "parsing",
+            "printing",
+            "proc-macro"
+          ]
         },
         "thiserror-2.0.18": {
           "dependencies": [
@@ -8771,7 +9555,11 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "thiserror-impl-2.0.18": {
           "dependencies": [
@@ -8838,17 +9626,22 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "unicode-ident-1.0.24": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "utf8parse-0.2.2": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "walkdir-2.5.0": {
           "dependencies": [
@@ -8875,12 +9668,14 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "zmij-1.0.21": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         }
       }
     },
@@ -8911,7 +9706,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "perf-literal",
+            "std"
+          ]
         },
         "anstream-1.0.0": {
           "dependencies": [
@@ -9038,12 +9837,21 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "auto",
+            "default",
+            "wincon"
+          ]
         },
         "anstyle-1.0.14": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "anstyle-parse-1.0.0": {
           "dependencies": [
@@ -9070,17 +9878,26 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "utf8"
+          ]
         },
         "anstyle-query-1.1.5": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "anyhow-1.0.102": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "clap-4.6.1": {
           "dependencies": [
@@ -9127,7 +9944,17 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "color",
+            "default",
+            "derive",
+            "error-context",
+            "help",
+            "std",
+            "suggestions",
+            "usage"
+          ]
         },
         "clap_builder-4.6.0": {
           "dependencies": [
@@ -9214,7 +10041,15 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "color",
+            "error-context",
+            "help",
+            "std",
+            "suggestions",
+            "usage"
+          ]
         },
         "clap_derive-4.6.1": {
           "dependencies": [
@@ -9305,17 +10140,22 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "clap_lex-1.1.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "colorchoice-1.0.5": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "cse-lint-0.1.0": {
           "dependencies": [
@@ -9470,27 +10310,37 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "heck-0.5.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "is_terminal_polyfill-1.70.2": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "itoa-1.0.18": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "memchr-2.8.0": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "alloc",
+            "std"
+          ]
         },
         "proc-macro2-1.0.106": {
           "dependencies": [
@@ -9517,7 +10367,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "proc-macro"
+          ]
         },
         "quote-1.0.45": {
           "dependencies": [
@@ -9544,7 +10398,11 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "proc-macro"
+          ]
         },
         "regex-1.12.3": {
           "dependencies": [
@@ -9631,7 +10489,26 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "perf",
+            "perf-backtrack",
+            "perf-cache",
+            "perf-dfa",
+            "perf-inline",
+            "perf-literal",
+            "perf-onepass",
+            "std",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment"
+          ]
         },
         "regex-automata-0.4.14": {
           "dependencies": [
@@ -9698,17 +10575,54 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "alloc",
+            "dfa-onepass",
+            "hybrid",
+            "meta",
+            "nfa-backtrack",
+            "nfa-pikevm",
+            "nfa-thompson",
+            "perf-inline",
+            "perf-literal",
+            "perf-literal-multisubstring",
+            "perf-literal-substring",
+            "std",
+            "syntax",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment",
+            "unicode-word-boundary"
+          ]
         },
         "regex-syntax-0.8.10": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std",
+            "unicode",
+            "unicode-age",
+            "unicode-bool",
+            "unicode-case",
+            "unicode-gencat",
+            "unicode-perl",
+            "unicode-script",
+            "unicode-segment"
+          ]
         },
         "same-file-1.0.6": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "serde-1.0.228": {
           "dependencies": [
@@ -9759,12 +10673,22 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "derive",
+            "serde_derive",
+            "std"
+          ]
         },
         "serde_core-1.0.228": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "result",
+            "std"
+          ]
         },
         "serde_derive-1.0.228": {
           "dependencies": [
@@ -9847,7 +10771,10 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "serde_json-1.0.149": {
           "dependencies": [
@@ -9934,12 +10861,17 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "strsim-0.11.1": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "syn-2.0.117": {
           "dependencies": [
@@ -10006,7 +10938,16 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "clone-impls",
+            "default",
+            "derive",
+            "full",
+            "parsing",
+            "printing",
+            "proc-macro"
+          ]
         },
         "thiserror-2.0.18": {
           "dependencies": [
@@ -10033,7 +10974,11 @@
               "tree": "host"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default",
+            "std"
+          ]
         },
         "thiserror-impl-2.0.18": {
           "dependencies": [
@@ -10100,17 +11045,22 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "unicode-ident-1.0.24": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "utf8parse-0.2.2": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": [
+            "default"
+          ]
         },
         "walkdir-2.5.0": {
           "dependencies": [
@@ -10137,14 +11087,17 @@
               "tree": "target"
             }
           ],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         },
         "zmij-1.0.21": {
           "dependencies": [],
           "runtime_dependencies": [],
-          "build_dependencies": []
+          "build_dependencies": [],
+          "features": []
         }
       }
     }
-  }
+  },
+  "cargo_lock_sha256": "a2720b08e3b7a136cf30857889302ccef851af804ae60958032bf78b0f905b27"
 }
