@@ -7,6 +7,10 @@ license = "MIT"
 description = "Constructive Substrate Engineering audit linter — measures CSE adherence across the pleme-io fleet"
 repository = "https://github.com/pleme-io/cse-lint"
 
+
+[package.metadata.pleme]
+description = "cse-lint — Constructive Substrate Engineering audit linter"
+
 [[bin]]
 name = "cse-lint"
 path = "src/main.rs"
