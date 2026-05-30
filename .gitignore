@@ -2,3 +2,4 @@
 /result*
 *.log
 
+Cargo.build-spec.json
