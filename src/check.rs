@@ -376,8 +376,7 @@ impl CseChecker for ModuleTrioAdoptionChecker {
 
 // ─── 6. CaixaNaivete ──────────────────────────────────────────────────
 /// Asserts that the repo declares itself as a caixa via a top-level
-/// `caixa.lisp` (per `theory/META-FRAMEWORK.md` §I — caixa is the
-/// canonical Layer-0 source primitive).
+/// `caixa.lisp` (caixa is the canonical Layer-0 source primitive).
 ///
 /// V0 flags every repo without `caixa.lisp` as informational. Eventually
 /// `--strict` makes it a hard failure for repos that should be caixa-native
@@ -443,8 +442,7 @@ impl CseChecker for CaixaNaiveteChecker {
             remediation: "Author a `caixa.lisp` at the repo root via \
                 `nix run github:pleme-io/caixa#feira -- init <name>` (or \
                 copy hello-rio/caixa.lisp as a template). caixa is the \
-                canonical Layer-0 source primitive — see \
-                theory/META-FRAMEWORK.md §I."
+                canonical Layer-0 source primitive."
                 .into(),
         });
     }
@@ -457,8 +455,6 @@ impl CseChecker for CaixaNaiveteChecker {
 /// app must hand-roll an `Srgb → Linear` conversion (or, worse, write
 /// raw sRGB into a wgpu surface and accept the gamma confusion), both
 /// of which the theme architecture eliminates by construction.
-///
-/// See `pleme-io/theory/THEME-ARCHITECTURE.md`.
 pub struct GuiAppConsumesIshouChecker;
 
 impl CseChecker for GuiAppConsumesIshouChecker {
@@ -515,8 +511,7 @@ impl CseChecker for GuiAppConsumesIshouChecker {
                 \"https://github.com/pleme-io/ishou\", features = [\"wgpu\"] }` \
                 to Cargo.toml's [dependencies] and route every \
                 `wgpu::Color` construction through \
-                `ishou_tokens::Srgb::to_linear`. See \
-                pleme-io/theory/THEME-ARCHITECTURE.md."
+                `ishou_tokens::Srgb::to_linear`."
                 .into(),
         });
     }
@@ -535,8 +530,7 @@ impl CseChecker for GuiAppConsumesIshouChecker {
 /// (transient hex tests, docs that quote the canonical palette). The
 /// structural rule (no `themes/nord/` directories outside ishou) is
 /// the load-bearing one — it's how mado, ayatsuri, blackmatter-mado
-/// historically each grew their own copy. See
-/// `pleme-io/theory/THEME-ARCHITECTURE.md`.
+/// historically each grew their own copy.
 pub struct NoForeignNordSourceChecker;
 
 impl CseChecker for NoForeignNordSourceChecker {
@@ -594,8 +588,7 @@ impl CseChecker for NoForeignNordSourceChecker {
                     (Rust GUI apps). Alternatively, regenerate the local file \
                     via `nix run github:pleme-io/ishou#nix > <path>` — \
                     the rendered output carries an `ishou-render` header \
-                    this checker recognises as a byte-derived mirror. See \
-                    pleme-io/theory/THEME-ARCHITECTURE.md."
+                    this checker recognises as a byte-derived mirror."
                     .into(),
             });
         }
@@ -611,8 +604,7 @@ impl CseChecker for NoForeignNordSourceChecker {
 /// - A `scenario` Rust module declared at the binary root.
 ///
 /// Each missing primitive emits one violation so the operator sees
-/// every gap at once. See `theory/HEADLESS-INTROSPECTION.md` for the
-/// pattern and `mado` for the reference implementation.
+/// every gap at once. See `mado` for the reference implementation.
 pub struct GpuAppHeadlessModeChecker;
 
 impl CseChecker for GpuAppHeadlessModeChecker {
@@ -658,8 +650,7 @@ impl CseChecker for GpuAppHeadlessModeChecker {
                 missing: "scenario module".into(),
                 remediation: "Add `mod scenario;` to src/main.rs and \
                     port the scenario harness from \
-                    pleme-io/mado/src/scenario.rs. See \
-                    theory/HEADLESS-INTROSPECTION.md §4."
+                    pleme-io/mado/src/scenario.rs."
                     .into(),
             });
         }
@@ -736,8 +727,7 @@ impl CseChecker for McpStdoutCleanChecker {
             remediation: "Replace `shidou::init_tracing()` with \
                 `shidou::init_tracing_to_stderr()` inside the `Mcp` \
                 dispatch branch. Stdout is the JSON-RPC channel — any \
-                log line on stdout breaks the protocol. See \
-                theory/HEADLESS-INTROSPECTION.md §3."
+                log line on stdout breaks the protocol."
                 .into(),
         });
     }

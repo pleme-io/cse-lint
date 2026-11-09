@@ -66,12 +66,11 @@ pub enum CseCheckKind {
     /// The repo declares itself as a caixa via a `caixa.lisp` at the root.
     /// V0 is informational (severity = warn) — flips to `--strict` once
     /// the migration window completes. Drives fleet adoption of caixa as
-    /// the primitive (per theory/META-FRAMEWORK.md §I).
+    /// the primitive.
     CaixaNaivete,
     /// Any Rust crate that depends on `garasu` or `madori` (i.e. is a
     /// pleme-io GUI app on the substrate's GPU stack) MUST also depend
-    /// on `ishou-tokens`. The theme architecture
-    /// (theory/THEME-ARCHITECTURE.md) makes gamma-correct colour
+    /// on `ishou-tokens`. The theme architecture makes gamma-correct colour
     /// construction structurally impossible without ishou-tokens'
     /// typed Srgb → Linear → wgpu::Color path.
     GuiAppConsumesIshou,
@@ -83,8 +82,7 @@ pub enum CseCheckKind {
     /// base16 render) and pleme-io GUI apps (via the typed Cargo dep).
     NoForeignNordSource,
     /// Any pleme-io GPU app (Cargo.toml depends on garasu / madori) MUST
-    /// ship an MCP-backed headless mode the way mado does — see
-    /// `pleme-io/theory/HEADLESS-INTROSPECTION.md`. The audit checks
+    /// ship an MCP-backed headless mode the way mado does. The audit checks
     /// for: an `mcp` subcommand declared in `Cli` / `SubCmd`, a
     /// `tests/scenarios/` directory, and a `scenario` module. Missing
     /// any of these is fleet drift — every visual bug becomes an
@@ -245,7 +243,6 @@ pub enum CseViolation {
     /// A GPU app (Cargo.toml depends on garasu / madori) is missing
     /// one of the canonical headless-introspection primitives —
     /// `mcp` subcommand, `tests/scenarios/`, or a `scenario` module.
-    /// See `theory/HEADLESS-INTROSPECTION.md` for the full pattern.
     MissingHeadlessPrimitive {
         repo: String,
         missing: String,

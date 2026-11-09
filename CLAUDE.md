@@ -1,10 +1,8 @@
 # cse-lint — Constructive Substrate Engineering audit linter
 
 > **★★★ CSE / Knowable Construction.** This repo is the *measurement
-> primitive* of Constructive Substrate Engineering. CSE methodology
-> canonical at
-> [`pleme-io/theory/CONSTRUCTIVE-SUBSTRATE-ENGINEERING.md`](https://github.com/pleme-io/theory/blob/main/CONSTRUCTIVE-SUBSTRATE-ENGINEERING.md);
-> Compounding Directive at the org-level pleme-io/CLAUDE.md ★★★ section.
+> primitive* of Constructive Substrate Engineering. The Compounding
+> Directive is at the org-level pleme-io/CLAUDE.md ★★★ section.
 > cse-lint exists so adherence to CSE is mechanically checkable rather
 > than aspirational — without it the directive has no falsifiable ground.
 
