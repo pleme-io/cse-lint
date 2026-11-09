@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
-  "cargo_lock_sha256": "f965753ada880781cc5eae970aa4c665aa2f90a5aeffba2f09422a127bf5ded0",
+  "cargo_lock_sha256": "bcb501c2c3fa5c1b3ab9a2a6f1dd49622020625a068f2bb8c45f698f0b9a5192",
   "manifest_sha256": {
-    "Cargo.toml": "86ddc19f5005471b618419a22cc7b2e42b7b92f96029a2f7a4bdeaf5fd368553"
+    "Cargo.toml": "9e4408fadf9fc6949d6e594c1f040c0c8a5e45efa9f0e97b9b117b9c573bff46"
   },
   "target_resolves": {
     "base": {
@@ -135,11 +135,11 @@
           "std"
         ]
       },
-      "clap-4.6.6": {
+      "clap-4.6.7": {
         "runtime_dependencies": [
           {
             "name": "clap_builder",
-            "package_key": "clap_builder-4.6.6",
+            "package_key": "clap_builder-4.6.7",
             "kind": "normal",
             "features": [],
             "uses_default_features": false,
@@ -149,7 +149,7 @@
           },
           {
             "name": "clap_derive",
-            "package_key": "clap_derive-4.6.4",
+            "package_key": "clap_derive-4.6.7",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -170,7 +170,7 @@
           "usage"
         ]
       },
-      "clap_builder-4.6.6": {
+      "clap_builder-4.6.7": {
         "runtime_dependencies": [
           {
             "name": "anstream",
@@ -194,7 +194,7 @@
           },
           {
             "name": "clap_lex",
-            "package_key": "clap_lex-1.1.0",
+            "package_key": "clap_lex-1.1.1",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -223,7 +223,7 @@
           "usage"
         ]
       },
-      "clap_derive-4.6.4": {
+      "clap_derive-4.6.7": {
         "runtime_dependencies": [
           {
             "name": "heck",
@@ -257,7 +257,7 @@
           },
           {
             "name": "syn",
-            "package_key": "syn-3.0.3",
+            "package_key": "syn-3.0.10",
             "kind": "normal",
             "features": [
               "full"
@@ -273,7 +273,7 @@
           "default"
         ]
       },
-      "clap_lex-1.1.0": {
+      "clap_lex-1.1.1": {
         "runtime_dependencies": [],
         "build_dependencies": [],
         "features": []
@@ -283,7 +283,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "cse-lint-0.1.1": {
+      "cse-lint-0.1.2": {
         "runtime_dependencies": [
           {
             "name": "anyhow",
@@ -297,7 +297,7 @@
           },
           {
             "name": "clap",
-            "package_key": "clap-4.6.6",
+            "package_key": "clap-4.6.7",
             "kind": "normal",
             "features": [
               "derive"
@@ -331,7 +331,7 @@
           },
           {
             "name": "serde_json",
-            "package_key": "serde_json-1.0.151",
+            "package_key": "serde_json-1.0.154",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -341,7 +341,7 @@
           },
           {
             "name": "thiserror",
-            "package_key": "thiserror-2.0.19",
+            "package_key": "thiserror-2.0.21",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -375,7 +375,7 @@
           "default"
         ]
       },
-      "itoa-1.0.18": {
+      "itoa-1.0.19": {
         "runtime_dependencies": [],
         "build_dependencies": [],
         "features": []
@@ -392,7 +392,7 @@
         "runtime_dependencies": [
           {
             "name": "unicode_ident",
-            "package_key": "unicode-ident-1.0.24",
+            "package_key": "unicode-ident-1.0.27",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -644,7 +644,7 @@
           },
           {
             "name": "syn",
-            "package_key": "syn-3.0.3",
+            "package_key": "syn-3.0.10",
             "kind": "normal",
             "features": [
               "clone-impls",
@@ -664,11 +664,11 @@
           "default"
         ]
       },
-      "serde_json-1.0.151": {
+      "serde_json-1.0.154": {
         "runtime_dependencies": [
           {
             "name": "itoa",
-            "package_key": "itoa-1.0.18",
+            "package_key": "itoa-1.0.19",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -718,7 +718,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "syn-3.0.3": {
+      "syn-3.0.10": {
         "runtime_dependencies": [
           {
             "name": "proc_macro2",
@@ -742,7 +742,7 @@
           },
           {
             "name": "unicode_ident",
-            "package_key": "unicode-ident-1.0.24",
+            "package_key": "unicode-ident-1.0.27",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -762,11 +762,11 @@
           "proc-macro"
         ]
       },
-      "thiserror-2.0.19": {
+      "thiserror-2.0.21": {
         "runtime_dependencies": [
           {
             "name": "thiserror_impl",
-            "package_key": "thiserror-impl-2.0.19",
+            "package_key": "thiserror-impl-2.0.21",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -781,7 +781,7 @@
           "std"
         ]
       },
-      "thiserror-impl-2.0.19": {
+      "thiserror-impl-2.0.21": {
         "runtime_dependencies": [
           {
             "name": "proc_macro2",
@@ -805,7 +805,7 @@
           },
           {
             "name": "syn",
-            "package_key": "syn-3.0.3",
+            "package_key": "syn-3.0.10",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -817,7 +817,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "unicode-ident-1.0.24": {
+      "unicode-ident-1.0.27": {
         "runtime_dependencies": [],
         "build_dependencies": [],
         "features": []
@@ -892,7 +892,7 @@
       "edition": "2021",
       "build_script": "build.rs"
     },
-    "clap-4.6.6": {
+    "clap-4.6.7": {
       "edition": "2024",
       "binaries": [
         {
@@ -901,20 +901,20 @@
         }
       ]
     },
-    "clap_builder-4.6.6": {
+    "clap_builder-4.6.7": {
       "edition": "2024"
     },
-    "clap_derive-4.6.4": {
+    "clap_derive-4.6.7": {
       "edition": "2024",
       "proc_macro": true
     },
-    "clap_lex-1.1.0": {
+    "clap_lex-1.1.1": {
       "edition": "2024"
     },
     "colorchoice-1.0.5": {
       "edition": "2021"
     },
-    "cse-lint-0.1.1": {
+    "cse-lint-0.1.2": {
       "edition": "2024",
       "binaries": [
         {
@@ -929,7 +929,7 @@
     "is_terminal_polyfill-1.70.2": {
       "edition": "2021"
     },
-    "itoa-1.0.18": {
+    "itoa-1.0.19": {
       "edition": "2021"
     },
     "memchr-2.8.3": {
@@ -967,25 +967,25 @@
       "edition": "2021",
       "proc_macro": true
     },
-    "serde_json-1.0.151": {
+    "serde_json-1.0.154": {
       "edition": "2021",
       "build_script": "build.rs"
     },
     "strsim-0.11.1": {
       "edition": "2015"
     },
-    "syn-3.0.3": {
+    "syn-3.0.10": {
       "edition": "2021"
     },
-    "thiserror-2.0.19": {
+    "thiserror-2.0.21": {
       "edition": "2021",
       "build_script": "build.rs"
     },
-    "thiserror-impl-2.0.19": {
+    "thiserror-impl-2.0.21": {
       "edition": "2021",
       "proc_macro": true
     },
-    "unicode-ident-1.0.24": {
+    "unicode-ident-1.0.27": {
       "edition": "2021"
     },
     "utf8parse-0.2.2": {
