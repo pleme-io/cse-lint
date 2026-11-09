@@ -45,8 +45,8 @@ pub struct RepoContext {
 ///   6. Generation over composition (caixa-native authoring)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub enum CseCheckKind {
-    /// CLAUDE.md links to CONSTRUCTIVE-SUBSTRATE-ENGINEERING.md
-    /// and/or the org-level Compounding Directive.
+    /// CLAUDE.md names Constructive Substrate Engineering (Knowable
+    /// Construction) and/or the org-level Compounding Directive.
     ClaudeMdPointer,
     /// flake.nix consumes a substrate helper rather than hand-rolling
     /// `pkgs.rustPlatform.buildRustPackage` / `flake-utils.lib.eachSystem`.

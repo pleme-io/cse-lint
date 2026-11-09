@@ -15,8 +15,8 @@ pub trait CseChecker: Send + Sync {
 
 // ─── 1. ClaudeMdPointer ──────────────────────────────────────────────
 /// Asserts that the repo's `CLAUDE.md` contains a CSE pointer block —
-/// either a link to `CONSTRUCTIVE-SUBSTRATE-ENGINEERING.md`, or a
-/// reference to the org-level Compounding Directive.
+/// either a mention of Constructive Substrate Engineering (Knowable
+/// Construction), or a reference to the org-level Compounding Directive.
 pub struct ClaudeMdPointerChecker;
 
 impl CseChecker for ClaudeMdPointerChecker {
